@@ -1,24 +1,40 @@
-import logo from './logo.svg';
+// import logo from './logo.svg';
 import './App.css';
+import {Canvas, extend, useThree} from '@react-three/fiber';
+import {OrbitControls} from'three/examples/jsm/controls/OrbitControls';
+// import * as THREE from 'three';
+
+extend({OrbitControls});
+const Orbit = () => {
+  const {camera, gl} = useThree();
+  return(
+    <orbitControls args={[camera, gl.domElement]}/>
+  )
+}
+const Box = () => {
+
+  return(
+  <mesh>
+  <boxBufferGeometry/>
+  <meshBasicMaterial/>
+
+{/* Check the Axes of the object, args is the size*/}
+
+  <axesHelper args={[5]}/>
+  </mesh>
+  )
+}
+
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+  <div className='App'>
+      <Canvas>
+        <Orbit/>
+        <Box/>
+      </Canvas>
+  </div>
+
   );
 }
 
