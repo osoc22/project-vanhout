@@ -1,9 +1,10 @@
 // import logo from './logo.svg';
 import './App.css';
-import React, { Component,useEffect, useState} from 'react';
-import {Canvas, extend, useThree} from '@react-three/fiber';
+import React, { Component,useEffect, useState, Suspense} from 'react';
+import {Canvas, extend, useThree, useLoader} from '@react-three/fiber';
 import {OrbitControls} from'three/examples/jsm/controls/OrbitControls';
 import {getJsonByProjectId} from './components/ObjectLoader';
+import {BathroomModel_2, BathroomModel_color, } from './components/Model';
 // import * as THREE from 'three';
 
 extend({OrbitControls});
@@ -13,6 +14,7 @@ const Orbit = () => {
     <orbitControls args={[camera, gl.domElement]}/>
   )
 }
+
 
 const Box = () => {
   return(
@@ -35,6 +37,7 @@ function App() {
     let resp = await getJsonByProjectId(projectId)
     console.log(resp)
     setJson(resp)
+    
   }
 
   useEffect (() => {
@@ -44,8 +47,13 @@ function App() {
   return (
   <div className='App'>
       <Canvas>
-        <Orbit/>
-        <Box/>
+        <Suspense fallback={null}>
+          <ambientLight intensity={1}/>
+          <Orbit/>
+          <BathroomModel_2 path='/Models/Grote badkamer_export_2.obj'/>
+          <BathroomModel_color path='/Models/bathroomtest.gltf'/>
+        </Suspense>
+        
       </Canvas>
   </div>
 
