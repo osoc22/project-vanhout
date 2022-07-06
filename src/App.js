@@ -4,6 +4,7 @@ import React, { Component,useEffect, useState} from 'react';
 import {Canvas, extend, useThree} from '@react-three/fiber';
 import {OrbitControls} from'three/examples/jsm/controls/OrbitControls';
 import {getJsonByProjectId} from './components/ObjectLoader';
+import AddressForm from './components/AddressForm';
 // import * as THREE from 'three';
 
 extend({OrbitControls});
@@ -43,6 +44,7 @@ function App() {
 
   return (
   <div className='App'>
+      <AddressForm />
       <Canvas>
         <Orbit/>
         <Box/>
