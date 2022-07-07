@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import Autosuggest from 'react-autosuggest';
 
 export async function getJsonFromUrl(url) {
@@ -64,7 +64,7 @@ function AddressForm(props){
     let [houseNumber, setHouseNumber] = useState("");
     let [postalCode, setPostalCode] = useState("");
     let [city, setCity] = useState("");
-    let [suggestions, setSuggestions] = useState([]);
+    let [suggestions, setSuggestions] = useState([{name:"aaaaaaa"},{name:"bbbbbbbbb"}]);
 
 
    function handleSubmit(event){
@@ -72,6 +72,8 @@ function AddressForm(props){
         console.log("SUBMITTED");
         console.log(event.target.value);
     }
+
+    useEffect(()=>{console.log(suggestions)},[suggestions])
 
     /* --- [code from: https://github.com/moroshko/react-autosuggest#basic-usage --- */
 
@@ -86,11 +88,16 @@ function AddressForm(props){
         setSuggestions([])
     };
 
+    const shouldRenderSuggestions = (value, reason) => {
+        return String(value).trim().length > 2;
+      }
+
     // Autosuggest will pass through all these props to the input.
     const streetNameProps = {
         placeholder: 'Type a street name',
         value:streetName,
-        onChange: (streetNameVal) => {setStreetName(streetNameVal)}
+        onChange: (streetNameVal) => {
+            setStreetName(streetNameVal.target.value)}
       };
     /* --- code from: https://github.com/moroshko/react-autosuggest#basic-usage ] --- */
 
@@ -101,9 +108,10 @@ function AddressForm(props){
                 <div>
                     <label htmlFor="streetName">Street name:</label>
                     <Autosuggest
-                        suggestions={suggestions}
+                        suggestions={[{name:"aaaaaaa"},{name:"bbbbbbbbb"}]}
                         onSuggestionsFetchRequested={onSuggestionsFetchRequested}
                         onSuggestionsClearRequested={onSuggestionsClearRequested}
+                        shouldRenderSuggestions={shouldRenderSuggestions}
                         getSuggestionValue={getSuggestionValue}
                         renderSuggestion={renderSuggestion}
                         inputProps={streetNameProps}
