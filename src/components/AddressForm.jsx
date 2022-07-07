@@ -34,18 +34,39 @@ const addresses = require('../data/splitted-addresses.json');
 
 /* --- [code from: https://github.com/moroshko/react-autosuggest#basic-usage --- */
 // Teach Autosuggest how to calculate suggestions for any given input value.
+
+// higher order function to make a getSuggested function
+const makeGetSuggestions = key => {
+    return value => {
+        const inputValue = value.trim().toLowerCase();
+        const inputLength = inputValue.length;
+    
+        const suggestions = inputLength === 0 ? [] : addresses.filter(address =>
+        address[key].toLowerCase().slice(0, inputLength) === inputValue
+        );
+
+        console.log(suggestions);
+
+        return suggestions;
+    }  
+  };
+
+const getSuggestions = makeGetSuggestions("streetName");
+
+/*
 const getSuggestions = value => {
     const inputValue = value.trim().toLowerCase();
     const inputLength = inputValue.length;
   
     const suggestions = inputLength === 0 ? [] : addresses.filter(address =>
-      address.streetName.toLowerCase().slice(0, inputLength) === inputValue
+      address["streetName"].toLowerCase().slice(0, inputLength) === inputValue
     );
 
     console.log(suggestions);
 
     return suggestions;
   };
+  */
 
 
 // When suggestion is clicked, Autosuggest needs to populate the input
