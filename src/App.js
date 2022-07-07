@@ -48,6 +48,16 @@ function App() {
   return (
   <div className='App'>
       <AddressForm />
+  </div>
+
+  );
+}
+
+/* function App() {
+
+  return (
+  <div className='App'>
+      <AddressForm />
       <Canvas>
         <Orbit/>
         <Building projectId={29}/>
@@ -55,6 +65,6 @@ function App() {
   </div>
 
   );
-}
+} */
 
 export default App;
