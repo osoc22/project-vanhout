@@ -88,9 +88,11 @@ function AddressForm(props){
         setSuggestions([])
     };
 
+    /*
     const shouldRenderSuggestions = (value, reason) => {
         return String(value).trim().length > 2;
       }
+      */
 
     // Autosuggest will pass through all these props to the input.
     const streetNameProps = {
@@ -101,17 +103,17 @@ function AddressForm(props){
       };
     /* --- code from: https://github.com/moroshko/react-autosuggest#basic-usage ] --- */
 
-
+    //          shouldRenderSuggestions={shouldRenderSuggestions}
     return (
         <div>
             <form onSubmit={handleSubmit}>
                 <div>
                     <label htmlFor="streetName">Street name:</label>
                     <Autosuggest
-                        suggestions={[{name:"aaaaaaa"},{name:"bbbbbbbbb"}]}
+                        suggestions={suggestions}
                         onSuggestionsFetchRequested={onSuggestionsFetchRequested}
                         onSuggestionsClearRequested={onSuggestionsClearRequested}
-                        shouldRenderSuggestions={shouldRenderSuggestions}
+               
                         getSuggestionValue={getSuggestionValue}
                         renderSuggestion={renderSuggestion}
                         inputProps={streetNameProps}
