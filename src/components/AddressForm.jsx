@@ -38,21 +38,25 @@ const getSuggestions = value => {
     const inputValue = value.trim().toLowerCase();
     const inputLength = inputValue.length;
   
-    return inputLength === 0 ? [] : addresses.filter(address =>
+    const suggestions = inputLength === 0 ? [] : addresses.filter(address =>
       address.streetName.toLowerCase().slice(0, inputLength) === inputValue
     );
+
+    console.log(suggestions);
+
+    return suggestions;
   };
 
 
 // When suggestion is clicked, Autosuggest needs to populate the input
 // based on the clicked suggestion. Teach Autosuggest how to calculate the
 // input value for every given suggestion.
-const getSuggestionValue = suggestion => suggestion.name;
+const getSuggestionValue = suggestion => suggestion.streetName;
 
 // Use your imagination to render suggestions.
 const renderSuggestion = suggestion => (
   <div>
-    {suggestion.name}
+    {suggestion.streetName}
   </div>
 );
 
@@ -64,7 +68,7 @@ function AddressForm(props){
     let [houseNumber, setHouseNumber] = useState("");
     let [postalCode, setPostalCode] = useState("");
     let [city, setCity] = useState("");
-    let [suggestions, setSuggestions] = useState([{name:"aaaaaaa"},{name:"bbbbbbbbb"}]);
+    let [suggestions, setSuggestions] = useState([{streetName:""}]);
 
 
    function handleSubmit(event){
@@ -80,12 +84,13 @@ function AddressForm(props){
     // Autosuggest will call this function every time you need to update suggestions.
     // You already implemented this logic above, so just use it.
     const onSuggestionsFetchRequested = ( {value} ) => {
+        //setSuggestions(getSuggestions(value.target.value))
         setSuggestions(getSuggestions(value))
     };
 
     // Autosuggest will call this function every time you need to clear suggestions.
     const onSuggestionsClearRequested = () => {
-        setSuggestions([])
+        //setSuggestions([])
     };
 
     /*
