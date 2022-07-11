@@ -51,22 +51,6 @@ const makeGetSuggestions = key => {
     }  
   };
 
-/*
-const getSuggestions = value => {
-    const inputValue = value.trim().toLowerCase();
-    const inputLength = inputValue.length;
-  
-    const suggestions = inputLength === 0 ? [] : addresses.filter(address =>
-      address["streetName"].toLowerCase().slice(0, inputLength) === inputValue
-    );
-
-    console.log(suggestions);
-
-    return suggestions;
-  };
-  */
-
-
 // When suggestion is clicked, Autosuggest needs to populate the input
 // based on the clicked suggestion. Teach Autosuggest how to calculate the
 // input value for every given suggestion.
@@ -122,15 +106,9 @@ function AddressForm(props){
     const onSuggestionsClearRequested = key => {
         return () => {
             let [_, setSuggestions] = suggestions[key];
-            setSuggestions({key:""});
+            setSuggestions([{key:""}]);
         }
     };
-
-    /*
-    const shouldRenderSuggestions = (value, reason) => {
-        return String(value).trim().length > 2;
-      }
-      */
 
     // Autosuggest will pass through all these props to the input.
     const streetNameProps = {
@@ -178,37 +156,6 @@ function AddressForm(props){
         </div>
 
     );
-
-    /*
-    return (
-        <div>
-            <form onSubmit={handleSubmit}>
-                <div>
-                    <label htmlFor="streetName">Street name:</label>
-                    <input type="text" id="streetName" name="streetName"
-                        onChange={(e) => setStreetName(e.target.value)} />
-                </div>
-                <div>
-                    <label htmlFor="houseNumber">House number:</label>
-                    <input type="number" id="houseNumber" name="houseNumber"
-                        onChange={(e) => setHouseNumber(e.target.value)} />
-                </div>
-                <div>
-                    <label htmlFor="postalCode">Postal code:</label>
-                    <input type="number" id="postalCode" name="postalCode"
-                        onChange={(e) => setPostalCode(e.target.value)}  />
-                </div>
-                <div>
-                    <label htmlFor="city">City:</label>
-                    <input type="text" id="city" name="city"
-                        onChange={(e) => setCity(e.target.value)} />
-                </div>
-                <input type="submit" value="Submit" />
-            </form>
-        </div>
-
-    );
-    */
 }
 
 export default AddressForm;
