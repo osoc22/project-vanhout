@@ -79,8 +79,14 @@ function AddressForm(props){
     let [postalCode, setPostalCode] = useState("");
     let [city, setCity] = useState("");
     let [streetNameSuggestions, setStreetNameSuggestions] = useState([{streetName:""}]);
+    let [houseNumberSuggestions, setHouseNumberSuggestions] = useState([{houseNumber:""}]);
+    let [postalCodeSuggestions, setpostalCodeSuggestions] = useState([{postalCode:""}]);
+    let [citySuggestions, setCitySuggestions] = useState([{city:""}]);
     let suggestions = {
-        streetName: [streetNameSuggestions, setStreetNameSuggestions]
+        streetName: [streetNameSuggestions, setStreetNameSuggestions],
+        houseNumber: [houseNumberSuggestions, setHouseNumberSuggestions],
+        postalCode: [postalCodeSuggestions, setpostalCodeSuggestions],
+        city: [citySuggestions, setCitySuggestions]
     };
   
 
@@ -117,6 +123,24 @@ function AddressForm(props){
         onChange: (streetNameVal) => {
             setStreetName(streetNameVal.target.value)}
       };
+    const houseNumberProps = {
+        placeholder: 'Type a house number',
+        value: houseNumber,
+        onChange: (houseNumberVal) => {
+            setHouseNumber(houseNumberVal.target.value)}
+      };
+    const postalCodeProps = {
+        placeholder: 'Type a postal code',
+        value: postalCode,
+        onChange: (postalCodeVal) => {
+            setPostalCode(postalCodeVal.target.value)}
+      };
+    const cityProps = {
+        placeholder: 'Type a house number',
+        value: city,
+        onChange: (cityVal) => {
+            setCity(cityVal.target.value)}
+      };
     /* --- code from: https://github.com/moroshko/react-autosuggest#basic-usage ] --- */
 
     //          shouldRenderSuggestions={shouldRenderSuggestions}
@@ -138,19 +162,43 @@ function AddressForm(props){
                 <div className="invisible-div"></div>
                 <div>
                     <label htmlFor="houseNumber">House number:</label>
-                    <input type="number" id="houseNumber" name="houseNumber"
-                        onChange={(e) => setHouseNumber(e.target.value)} />
+                    <Autosuggest
+                        suggestions={houseNumberSuggestions}
+                        onSuggestionsFetchRequested={onSuggestionsFetchRequested("houseNumber")}
+                        onSuggestionsClearRequested={onSuggestionsClearRequested("houseNumber")}
+               
+                        getSuggestionValue={makeGetSuggestionValue("houseNumber")}
+                        renderSuggestion={makeRenderSuggestion("houseNumber")}
+                        inputProps={houseNumberProps}
+                    />
                 </div>
+                <div className="invisible-div"></div>
                 <div>
                     <label htmlFor="postalCode">Postal code:</label>
-                    <input type="number" id="postalCode" name="postalCode"
-                        onChange={(e) => setPostalCode(e.target.value)}  />
+                    <Autosuggest
+                        suggestions={postalCodeSuggestions}
+                        onSuggestionsFetchRequested={onSuggestionsFetchRequested("postalCode")}
+                        onSuggestionsClearRequested={onSuggestionsClearRequested("postalCode")}
+               
+                        getSuggestionValue={makeGetSuggestionValue("postalCode")}
+                        renderSuggestion={makeRenderSuggestion("postalCode")}
+                        inputProps={postalCodeProps}
+                    />
                 </div>
+                <div className="invisible-div"></div>
                 <div>
                     <label htmlFor="city">City:</label>
-                    <input type="text" id="city" name="city"
-                        onChange={(e) => setCity(e.target.value)} />
+                    <Autosuggest
+                        suggestions={citySuggestions}
+                        onSuggestionsFetchRequested={onSuggestionsFetchRequested("city")}
+                        onSuggestionsClearRequested={onSuggestionsClearRequested("city")}
+               
+                        getSuggestionValue={makeGetSuggestionValue("city")}
+                        renderSuggestion={makeRenderSuggestion("city")}
+                        inputProps={cityProps}
+                    />
                 </div>
+                <div className="invisible-div"></div>
                 <input type="submit" value="Submit" />
             </form>
         </div>
