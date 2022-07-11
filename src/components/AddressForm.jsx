@@ -73,6 +73,7 @@ const makeRenderSuggestion = key => {
     }
 };
 
+
 /* --- code from: https://github.com/moroshko/react-autosuggest#basic-usage ] --- */
 
 
@@ -122,27 +123,32 @@ function AddressForm(props){
     // Autosuggest will pass through all these props to the input.
     const streetNameProps = {
         placeholder: 'Type a street name',
-        value:streetName,
-        onChange: (streetNameVal) => {
-            setStreetName(streetNameVal.target.value)}
+        value: streetName,
+        onChange: (event,streetNameVal) => {
+           // setStreetName(streetNameVal.target.value)}
+           setStreetName(streetNameVal.newValue)}
       };
     const houseNumberProps = {
         placeholder: 'Type a house number',
         value: houseNumber,
-        onChange: (houseNumberVal) => {
-            setHouseNumber(houseNumberVal.target.value)}
+        onChange: (event,houseNumberVal) => {
+            //setHouseNumber(houseNumberVal.target.value)}
+            console.log(houseNumberVal)
+            setHouseNumber(houseNumberVal.newValue)}
       };
     const postalCodeProps = {
         placeholder: 'Type a postal code',
         value: postalCode,
-        onChange: (postalCodeVal) => {
-            setPostalCode(postalCodeVal.target.value)}
+        onChange: (event,postalCodeVal) => {
+            //setPostalCode(postalCodeVal.target.value)}
+            setPostalCode(postalCodeVal.newValue)}
       };
     const cityProps = {
         placeholder: 'Type a house number',
         value: city,
         onChange: (cityVal) => {
-            setCity(cityVal.target.value)}
+            //setCity(cityVal.target.value)}
+            setCity(cityVal.newValue)}
       };
     /* --- code from: https://github.com/moroshko/react-autosuggest#basic-usage ] --- */
 
