@@ -51,8 +51,6 @@ const makeGetSuggestions = key => {
     }  
   };
 
-const getSuggestions = makeGetSuggestions("streetName");
-
 /*
 const getSuggestions = value => {
     const inputValue = value.trim().toLowerCase();
@@ -72,14 +70,21 @@ const getSuggestions = value => {
 // When suggestion is clicked, Autosuggest needs to populate the input
 // based on the clicked suggestion. Teach Autosuggest how to calculate the
 // input value for every given suggestion.
-const getSuggestionValue = suggestion => suggestion.streetName;
+//const getStreetNameSuggestionValue = suggestion => suggestion.streetName;
+const makeGetSuggestionValue = key => { 
+    return suggestion => { 
+        return suggestion[key]
+    }
+};
 
 // Use your imagination to render suggestions.
-const renderSuggestion = suggestion => (
-  <div>
-    {suggestion.streetName}
-  </div>
-);
+const makeRenderSuggestion = key => {
+    return suggestion => {
+        return (<div>
+                    {suggestion[key]}
+                </div>)
+    }
+};
 
 /* --- code from: https://github.com/moroshko/react-autosuggest#basic-usage ] --- */
 
@@ -89,7 +94,11 @@ function AddressForm(props){
     let [houseNumber, setHouseNumber] = useState("");
     let [postalCode, setPostalCode] = useState("");
     let [city, setCity] = useState("");
-    let [suggestions, setSuggestions] = useState([{streetName:""}]);
+    let [streetNameSuggestions, setStreetNameSuggestions] = useState([{streetName:""}]);
+    let suggestions = {
+        streetName: [streetNameSuggestions, setStreetNameSuggestions]
+    };
+  
 
 
    function handleSubmit(event){
@@ -98,20 +107,23 @@ function AddressForm(props){
         console.log(event.target.value);
     }
 
-    useEffect(()=>{console.log(suggestions)},[suggestions])
-
     /* --- [code from: https://github.com/moroshko/react-autosuggest#basic-usage --- */
 
     // Autosuggest will call this function every time you need to update suggestions.
     // You already implemented this logic above, so just use it.
-    const onSuggestionsFetchRequested = ( {value} ) => {
-        //setSuggestions(getSuggestions(value.target.value))
-        setSuggestions(getSuggestions(value))
+    const onSuggestionsFetchRequested = key => {
+        return ({value} ) => {
+            let [_, setSuggestions] = suggestions[key];
+            setSuggestions(makeGetSuggestions(key)(value));
+        }
     };
 
     // Autosuggest will call this function every time you need to clear suggestions.
-    const onSuggestionsClearRequested = () => {
-        //setSuggestions([])
+    const onSuggestionsClearRequested = key => {
+        return () => {
+            let [_, setSuggestions] = suggestions[key];
+            setSuggestions({key:""});
+        }
     };
 
     /*
@@ -136,16 +148,16 @@ function AddressForm(props){
                 <div>
                     <label htmlFor="streetName">Street name:</label>
                     <Autosuggest
-                        suggestions={suggestions}
-                        onSuggestionsFetchRequested={onSuggestionsFetchRequested}
-                        onSuggestionsClearRequested={onSuggestionsClearRequested}
+                        suggestions={streetNameSuggestions}
+                        onSuggestionsFetchRequested={onSuggestionsFetchRequested("streetName")}
+                        onSuggestionsClearRequested={onSuggestionsClearRequested("streetName")}
                
-                        getSuggestionValue={getSuggestionValue}
-                        renderSuggestion={renderSuggestion}
+                        getSuggestionValue={makeGetSuggestionValue("streetName")}
+                        renderSuggestion={makeRenderSuggestion("streetName")}
                         inputProps={streetNameProps}
                     />
                 </div>
-                <div class="invisible-div"></div>
+                <div className="invisible-div"></div>
                 <div>
                     <label htmlFor="houseNumber">House number:</label>
                     <input type="number" id="houseNumber" name="houseNumber"
