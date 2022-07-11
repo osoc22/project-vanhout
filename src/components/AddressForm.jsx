@@ -51,8 +51,6 @@ const makeGetSuggestions = (generalSuggestions,key) => {
         let uniqueSuggestions = [...new Set(suggestions.map(x => x[key]))];
         uniqueSuggestions = uniqueSuggestions.map(x => ({[key]: x}))
 
-        console.log(suggestions);
-
         return [suggestions,uniqueSuggestions];
     }  
   };
@@ -88,8 +86,6 @@ function AddressForm(props){
     // let [generalSuggestions, setGeneralSuggestions] = useState([{streetName: "", houseNumber: "", postalCode: "", city: ""}]);
     let [generalSuggestions, setGeneralSuggestions] = useState(addresses);
 
-    let [showStreetNameSuggestions, setShowStreetNameSuggestions] = useState(false);
-    /*
     let [streetNameSuggestions, setStreetNameSuggestions] = useState([{streetName:""}]);
     let [houseNumberSuggestions, setHouseNumberSuggestions] = useState([{houseNumber:""}]);
     let [postalCodeSuggestions, setpostalCodeSuggestions] = useState([{postalCode:""}]);
@@ -100,6 +96,12 @@ function AddressForm(props){
         postalCode: [postalCodeSuggestions, setpostalCodeSuggestions],
         city: [citySuggestions, setCitySuggestions]
     };
+
+
+    let [showStreetNameSuggestions, setShowStreetNameSuggestions] = useState(false);
+    let [showStreetNumberSuggestions, setShowStreetNumberSuggestions] = useState(false);
+    let [showPostalCodeSuggestions, setShowPostalCodeSuggestions] = useState(false);
+    let [showCitySuggestions, setShowCitySuggestions] = useState(false);
     
 
     function updateAllSuggestions(){
@@ -119,7 +121,7 @@ function AddressForm(props){
     useEffect(()=>{
         console.log(houseNumberSuggestions);
     },[houseNumberSuggestions]);
-    */
+
 
 
     /*
@@ -128,9 +130,32 @@ function AddressForm(props){
     }, [generalSuggestions]);
     */
 
+    /*
     useEffect(() => {
         console.log(generalSuggestions);
     }, [generalSuggestions]);
+    */
+
+    useEffect(() => {
+        console.log(streetNameSuggestions);
+    }, [streetNameSuggestions]);
+
+    const initialiseSuggestions = (key) => {
+        let [fieldSuggestions, setFieldSuggestions] = suggestions[key];
+        // remove duplicates
+        let uniqueSuggestions = [... new Set(generalSuggestions.map(x => x[key]))];
+        // sort values
+        uniqueSuggestions.sort();
+        uniqueSuggestions = uniqueSuggestions.map(x => ({[key]:x}));
+        setFieldSuggestions(uniqueSuggestions);
+    };
+
+    // on page load, initialise all suggestions of all fields with unique values of generalSuggestions
+    useEffect(() => {
+        for (const [fieldName, _] of Object.entries(suggestions)){
+            initialiseSuggestions(fieldName)
+        }
+    },[]);
 
 
    function handleSubmit(event){
@@ -147,10 +172,10 @@ function AddressForm(props){
     // You already implemented this logic above, so just use it.
     const onSuggestionsFetchRequested = key => {
         return ({value} ) => {
-            //let [_, setSuggestions] = suggestions[key];
+            let [_, setSuggestions] = suggestions[key];
             let [newSuggestions, newUniqueSuggestions] = makeGetSuggestions(generalSuggestions,key)(value);
             setGeneralSuggestions(newSuggestions);
-            //setSuggestions(newUniqueSuggestions);
+            setSuggestions(newUniqueSuggestions);
         }
     };
 
@@ -184,21 +209,42 @@ function AddressForm(props){
         onChange: (event,houseNumberVal) => {
             //setHouseNumber(houseNumberVal.target.value)}
             console.log(houseNumberVal)
-            setHouseNumber(houseNumberVal.newValue)}
+            setHouseNumber(houseNumberVal.newValue)
+        },
+        onBlur: (event,ignore) => {
+            setShowStreetNumberSuggestions(false)
+        },
+        onFocus: (event,ignore) => {
+            setShowStreetNumberSuggestions(true)
+        }
     };
     const postalCodeProps = {
         placeholder: 'Type a postal code',
         value: postalCode,
         onChange: (event,postalCodeVal) => {
             //setPostalCode(postalCodeVal.target.value)}
-            setPostalCode(postalCodeVal.newValue)}
+            setPostalCode(postalCodeVal.newValue)
+        },
+        onBlur: (event,ignore) => {
+            setShowPostalCodeSuggestions(false)
+        },
+        onFocus: (event,ignore) => {
+            setShowPostalCodeSuggestions(true)
+        }
     };
     const cityProps = {
         placeholder: 'Type a house number',
         value: city,
         onChange: (cityVal) => {
             //setCity(cityVal.target.value)}
-            setCity(cityVal.newValue)}
+            setCity(cityVal.newValue)
+        },
+        onBlur: (event,ignore) => {
+            setShowCitySuggestions(false)
+        },
+        onFocus: (event,ignore) => {
+            setShowCitySuggestions(true)
+        }
     };
 
     /*
@@ -224,7 +270,7 @@ function AddressForm(props){
                 <div>
                     <label htmlFor="streetName">Street name:</label>
                     <Autosuggest
-                        suggestions={generalSuggestions}
+                        suggestions={streetNameSuggestions}
                         onSuggestionsFetchRequested={onSuggestionsFetchRequested("streetName")}
                         onSuggestionsClearRequested={onSuggestionsClearRequested("streetName")}
                         alwaysRenderSuggestions={showStreetNameSuggestions}
@@ -242,6 +288,7 @@ function AddressForm(props){
                         suggestions={generalSuggestions}
                         onSuggestionsFetchRequested={onSuggestionsFetchRequested("houseNumber")}
                         onSuggestionsClearRequested={onSuggestionsClearRequested("houseNumber")}
+                        alwaysRenderSuggestions={showStreetNumberSuggestions}
                
                         getSuggestionValue={makeGetSuggestionValue("houseNumber")}
                         renderSuggestion={makeRenderSuggestion("houseNumber")}
@@ -255,6 +302,7 @@ function AddressForm(props){
                         suggestions={generalSuggestions}
                         onSuggestionsFetchRequested={onSuggestionsFetchRequested("postalCode")}
                         onSuggestionsClearRequested={onSuggestionsClearRequested("postalCode")}
+                        alwaysRenderSuggestions={showPostalCodeSuggestions}
                
                         getSuggestionValue={makeGetSuggestionValue("postalCode")}
                         renderSuggestion={makeRenderSuggestion("postalCode")}
@@ -268,6 +316,7 @@ function AddressForm(props){
                         suggestions={generalSuggestions}
                         onSuggestionsFetchRequested={onSuggestionsFetchRequested("city")}
                         onSuggestionsClearRequested={onSuggestionsClearRequested("city")}
+                        alwaysRenderSuggestions={showCitySuggestions}
                
                         getSuggestionValue={makeGetSuggestionValue("city")}
                         renderSuggestion={makeRenderSuggestion("city")}
