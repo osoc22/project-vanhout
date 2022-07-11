@@ -61,7 +61,9 @@ export async function loadObjectsFromJson(projectId) {
 // Note: write dynamically so any obj version can be positioned 
 export function loadObj(obj,iter) {
     if (["building"].indexOf(obj.type) == -1) {
-        if (obj.fill === 'none') {return}
+        if (obj.fill === 'none') {
+            obj.fill = "#555555"
+            obj.height = 1}
         if (obj.type == "corner") { return loadCorner(obj.points,obj.height)}
         if (obj.type == "wall" && obj.properties["wall-type"] == "open") {obj.fill = wallcolor}
         return Cuboid(iter,obj.type,[obj.width/1000,obj.height/1000,obj.depth/1000],[-obj.posX/1000,obj.posZ/1000,obj.posY/1000],obj.fill,obj.theta)
@@ -76,7 +78,7 @@ export function loadCorner(points,height){
     let vertices = []
     let normalizedPoints = []
 
-    for (let i = 0;i < points.length-2; i++) {
+    for (let i = 0;i < points.length-1; i++) {
         normalizedPoints.push(points[0])
         normalizedPoints.push(points[i])
         normalizedPoints.push(points[i+1])
@@ -113,18 +115,6 @@ export function loadCorner(points,height){
     return <mesh geometry={geometry}><meshBasicMaterial attach="material" side={DoubleSide} color={wallcolor}/></mesh>
 }
 
-const Box = () => {
-    return(
-      <mesh>
-      <boxGeometry/>
-      <meshBasicMaterial/>
-      {/* Check the Axes of the object, args is the size*/}
-      <axesHelper args={[5]}/>
-      </mesh>
-    )
-  }
-  
-
 export function LoadParcel(points) {
     let vertices = []
     for (let polygon of points) {
@@ -155,7 +145,7 @@ const Cuboid = (iter,type,shape,pos,fill,theta) => {
                 <meshBasicMaterial attach="material" color={fill}/>
                 {/* <axesHelper args={[5]}/> */}
             </mesh>
-            <axesHelper args={[5]}/>
+            {/* <axesHelper args={[5]}/> */}
         </group>
     )
 }
