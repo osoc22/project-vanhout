@@ -36,6 +36,9 @@ const addresses = require('../data/splitted-addresses.json');
 // Teach Autosuggest how to calculate suggestions for any given input value.
 
 // higher order function to make a getSuggested function
+
+// https://stackoverflow.com/a/43046408
+
 const makeGetSuggestions = key => {
     return value => {
         const inputValue = value.trim().toLowerCase();
@@ -45,9 +48,9 @@ const makeGetSuggestions = key => {
         address[key].toLowerCase().slice(0, inputLength) === inputValue
         );
 
-        console.log(suggestions);
+        const uniqueSuggestions = [...new Set(suggestions.map(x => x[key]))];
 
-        return suggestions;
+        return uniqueSuggestions.map(x => ({[key]: x}));
     }  
   };
 
