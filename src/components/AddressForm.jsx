@@ -145,6 +145,7 @@ function AddressForm(props){
                         inputProps={streetNameProps}
                     />
                 </div>
+                <div class="invisible-div"></div>
                 <div>
                     <label htmlFor="houseNumber">House number:</label>
                     <input type="number" id="houseNumber" name="houseNumber"
