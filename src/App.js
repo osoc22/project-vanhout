@@ -27,6 +27,13 @@ const Building = (prop) => {
     fetchProject()
   }, [projectId])
 
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     fetchProject()
+  //   }, 3000);
+  //   return () => clearInterval(interval);
+  // }, []);
+
   return projectMesh
 
 }
@@ -48,7 +55,7 @@ function App() {
   <div className='App'>
       <Canvas>
         <Orbit/>
-        <Building projectId={29}/>
+        <Building projectId={72}/>
       </Canvas>
   </div>
 

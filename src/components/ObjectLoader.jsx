@@ -40,8 +40,10 @@ export async function loadObjectsFromJson(projectId) {
     // }
 
     const modelData = await getJsonByProjectId(projectId)
-    const latestModelData = modelData[modelData.length-1]
-    // console.log(latestModelData)
+    let randomModel = Math.round(Math.random()*modelData.length-1);
+    const latestModelData = modelData[randomModel]
+    console.log(modelData)
+    console.log(randomModel)
     
     let objects = [];
     let object;
