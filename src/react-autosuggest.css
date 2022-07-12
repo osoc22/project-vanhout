@@ -59,7 +59,7 @@
   margin: 0;
   padding: 0;
   list-style-type: none;
-  height: 150px;
+  max-height: 150px;
   overflow: auto;
 }
 
