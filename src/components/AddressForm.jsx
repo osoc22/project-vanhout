@@ -51,6 +51,8 @@ const makeRenderSuggestion = key => {
 
 
 function AddressForm(props){
+    let setProjectId = props.setProjectId;
+
     let [streetName, setStreetName] = useState("");
     let [streetNumber, setStreetNumber] = useState("");
     let [postalCode, setPostalCode] = useState("");
@@ -117,7 +119,9 @@ function AddressForm(props){
 
    function handleSubmit(event){
         event.preventDefault();
-        console.log(generalSuggestions[0].projectID);
+        const projectId = generalSuggestions[0].projectID;
+        console.log(projectId);
+        setProjectId(projectId);
     }
 
 
@@ -279,7 +283,7 @@ function AddressForm(props){
                     />
                 </div>
                 <div className="invisible-div"></div>
-                <input type="submit" value="Submit" />
+                <input type="submit" value="Submit"/>
             </form>
         </div>
 

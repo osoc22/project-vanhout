@@ -6,7 +6,11 @@ import {Canvas, extend, useThree} from '@react-three/fiber';
 import {OrbitControls} from'three/examples/jsm/controls/OrbitControls';
 import {getJsonByProjectId, loadObjectsFromJson} from './components/ObjectLoader';
 import AddressForm from './components/AddressForm';
+import { Router, Routes, Route, useParams } from "react-router-dom";
+import { createBrowserHistory } from "history";
 // import * as THREE from 'three';
+
+const history = createBrowserHistory();
 
 extend({OrbitControls});
 const Orbit = () => {
@@ -16,9 +20,10 @@ const Orbit = () => {
   )
 }
 
-const Building = (prop) => {
+const Building = (props) => {
   const [projectMesh,setProjectMesh] = useState([])
-  const [projectId,setProjectId] = useState(prop.projectId)
+  //const [projectId,setProjectId] = useState(props.projectId)
+  const [projectId,_] = useState(props.projectId);
 
   const fetchProject = async function() {
     let objects = await loadObjectsFromJson(projectId)
@@ -26,6 +31,10 @@ const Building = (prop) => {
   }
 
   useEffect (() => {
+    if(projectId){
+      console.log(`ID: ${typeof(projectId)}`);
+    }
+
     fetchProject()
   }, [projectId])
 
@@ -51,16 +60,38 @@ const Building = (prop) => {
 // }
 
 function App() {
+  let [projectId, setProjectId] = useState("");
+
+  
+  useEffect(()=>{
+    console.log(`PROJECT ID: ${projectId}`);
+
+    if (projectId){
+      history.push(`/visualisation/:${projectId}`);
+    }
+
+      
+
+  },[projectId]);
+  
+
+ 
 
   return (
-  <div className='App'>
-      {<AddressForm />}
-      <Canvas>
-        <Orbit/>
-        <Building projectId={13}/>
-      </Canvas>
-  </div>
-
+      <Router location={history.location} history={history}>
+        <div className='App'>
+        <Routes>
+          <Route exact path="/" element={<AddressForm setProjectId={setProjectId} />}/>
+          <Route path="/visualisation/:projectId"
+                element={
+                  <Canvas>
+                    <Orbit/>
+                    <Building projectId={projectId} />
+                  </Canvas>
+                } />
+        </Routes>
+        </div>
+      </Router>
 )};
 
 
