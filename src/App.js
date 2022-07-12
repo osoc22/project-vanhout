@@ -54,7 +54,7 @@ function App() {
 
   return (
   <div className='App'>
-      {/* <AddressForm /> */}
+      {<AddressForm />}
       <Canvas>
         <Orbit/>
         <Building projectId={13}/>

@@ -52,20 +52,20 @@ const makeRenderSuggestion = key => {
 
 function AddressForm(props){
     let [streetName, setStreetName] = useState("");
-    let [streetNumber, setstreetNumber] = useState("");
+    let [streetNumber, setStreetNumber] = useState("");
     let [postalCode, setPostalCode] = useState("");
     let [city, setCity] = useState("");
     // let [generalSuggestions, setGeneralSuggestions] = useState([{streetName: "", streetNumber: "", postalCode: "", city: ""}]);
     let [generalSuggestions, setGeneralSuggestions] = useState(addresses);
 
     let [streetNameSuggestions, setStreetNameSuggestions] = useState([{streetName:""}]);
-    let [streetNumberSuggestions, setstreetNumberSuggestions] = useState([{streetNumber:""}]);
-    let [postalCodeSuggestions, setpostalCodeSuggestions] = useState([{postalCode:""}]);
+    let [streetNumberSuggestions, setStreetNumberSuggestions] = useState([{streetNumber:""}]);
+    let [postalCodeSuggestions, setPostalCodeSuggestions] = useState([{postalCode:""}]);
     let [citySuggestions, setCitySuggestions] = useState([{city:""}]);
     let suggestions = {
         streetName: [streetNameSuggestions, setStreetNameSuggestions],
-        streetNumber: [streetNumberSuggestions, setstreetNumberSuggestions],
-        postalCode: [postalCodeSuggestions, setpostalCodeSuggestions],
+        streetNumber: [streetNumberSuggestions, setStreetNumberSuggestions],
+        postalCode: [postalCodeSuggestions, setPostalCodeSuggestions],
         city: [citySuggestions, setCitySuggestions]
     };
 
@@ -168,11 +168,11 @@ function AddressForm(props){
         },
     };
     const streetNumberProps = {
-        placeholder: 'Type a house number',
+        placeholder: 'Type a street number',
         value: streetNumber,
         onChange: (event,streetNumberVal) => {
             //setstreetNumber(streetNumberVal.target.value)}
-            setstreetNumber(streetNumberVal.newValue)
+            setStreetNumber(streetNumberVal.newValue)
         },
         onBlur: (event,ignore) => {
             setShowStreetNumberSuggestions(false)
