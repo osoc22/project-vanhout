@@ -40,28 +40,28 @@ const Building = (prop) => {
 
 }
 
+// function App() {
+
+//   return (
+//   <div className='App'>
+//       <AddressForm />
+//   </div>
+
+//   );
+// }
+
 function App() {
 
   return (
   <div className='App'>
-      <AddressForm />
-  </div>
-
-  );
-}
-
-/* function App() {
-
-  return (
-  <div className='App'>
-      <AddressForm />
+      {/* <AddressForm /> */}
       <Canvas>
         <Orbit/>
         <Building projectId={13}/>
       </Canvas>
   </div>
 
-  );
-} */
+)};
+
 
 export default App;
