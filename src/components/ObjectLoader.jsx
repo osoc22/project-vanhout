@@ -40,7 +40,7 @@ export async function loadObjectsFromJson(projectId) {
     // }
 
     const modelData = await getJsonByProjectId(projectId)
-    let randomModel = Math.round(Math.random()*modelData.length-1);
+    let randomModel = Math.round(Math.random()*(modelData.length-1));
     const latestModelData = modelData[randomModel]
     console.log(modelData)
     console.log(randomModel)
@@ -64,6 +64,7 @@ export async function loadObjectsFromJson(projectId) {
 export function loadObj(obj,iter) {
     if (["building"].indexOf(obj.type) == -1) {
         if (obj.fill === 'none') {
+            //return;
             obj.fill = "#555555"
             obj.height = 1}
         if (obj.type == "corner") { return loadCorner(obj.points,obj.height)}
