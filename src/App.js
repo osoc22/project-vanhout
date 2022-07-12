@@ -30,23 +30,12 @@ const Building = (prop) => {
   // useEffect(() => {
   //   const interval = setInterval(() => {
   //     fetchProject()
-  //   }, 3000);
+  //   }, 1000);
   //   return () => clearInterval(interval);
   // }, []);
 
   return projectMesh
 
-}
-
-const Box = () => {
-  return(
-    <mesh>
-    <boxBufferGeometry/>
-    <meshBasicMaterial/>
-    {/* Check the Axes of the object, args is the size*/}
-    <axesHelper args={[5]}/>
-    </mesh>
-  )
 }
 
 function App() {
@@ -55,7 +44,7 @@ function App() {
   <div className='App'>
       <Canvas>
         <Orbit/>
-        <Building projectId={72}/>
+        <Building projectId={13}/>
       </Canvas>
   </div>
 
