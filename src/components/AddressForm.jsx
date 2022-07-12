@@ -1,34 +1,6 @@
 import {useEffect, useState} from 'react';
 import Autosuggest from 'react-autosuggest';
 
-export async function getJsonFromUrl(url) {
-    return fetch(url)
-    .then((response) => response.json())
-    .then((responseJson) => {
-    return responseJson;
-    })
-    .catch((error) => {
-    console.error(error);
-    });   
-}
-
-export async function getPossibleAddresses(street = undefined,number = undefined,postcode = undefined,city = undefined) {
-    let json = await getJsonFromUrl(`https://circl.be/nieuw/tool/overzicht.php?lijst=projecten&type=json`);
-    let possiblePlots = []
-    for (let plotData of json) {
-        let splitAddress = plotData.adres.toLowerCase().split(" ")
-        if ((street == undefined) || splitAddress[0].includes(street.toLowerCase())) {possiblePlots.push(plotData); continue;}
-        if ((street == undefined) || splitAddress[0].includes(street.toLowerCase())) {possiblePlots.push(plotData); continue;}
-    }
-    return possiblePlots
-}
-
-/*
-export async function getJsonByAddressParameters() {
-
-}
-*/
-
 // https://stackoverflow.com/a/34789405
 const addresses = require('../data/splitted-addresses.json');
 
@@ -121,20 +93,6 @@ function AddressForm(props){
     useEffect(()=>{
         console.log(houseNumberSuggestions);
     },[houseNumberSuggestions]);
-
-
-
-    /*
-    useEffect(() => {
-        console.log(generalSuggestions);
-    }, [generalSuggestions]);
-    */
-
-    /*
-    useEffect(() => {
-        console.log(generalSuggestions);
-    }, [generalSuggestions]);
-    */
 
     useEffect(() => {
         console.log(streetNameSuggestions);
@@ -247,19 +205,6 @@ function AddressForm(props){
         }
     };
 
-    /*
-     shouldRenderSuggestions={(value, reason) => {
-                            console.log(reason);
-                            return reason === 'value-focused' || reason === 'render'
-                        }}
-                        */
-
-    /*                    
-    function shouldRenderSuggestions(value, reason) {
-        console.log(typeof(value));
-        return value.trim().length >= 1;
-        }
-    */
 
     /* --- code from: https://github.com/moroshko/react-autosuggest#basic-usage ] --- */
 
