@@ -48,15 +48,23 @@ export async function loadObjectsFromJson(projectId) {
     let objects = [];
     let object;
     let obj;
+    let corners = [];
+    let corner;
 
     //objects.push(LoadParcel(latestModelData.parcel));
 
     for (let i=0;i<latestModelData.elements.length;i++) {
         obj = latestModelData.elements[i]
+        if (obj.type == "corner") {
+            corner = loadCorner(obj.points,obj.height)
+            objects.push(corner)
+            corners.push(obj.points[0])
+            continue
+        }
         object = loadObj(obj,i);
-
         if (object) { objects.push(object)}
     }
+    objects.push(loadFloors(corners, 30))
     return objects;
 }
 
@@ -64,10 +72,10 @@ export async function loadObjectsFromJson(projectId) {
 export function loadObj(obj,iter) {
     if (["building"].indexOf(obj.type) == -1) {
         if (obj.fill === 'none') {
-            //return;
+            return;
             obj.fill = "#555555"
             obj.height = 1}
-        if (obj.type == "corner") { return loadCorner(obj.points,obj.height)}
+        
         if (obj.type == "wall" && obj.properties["wall-type"] == "open") {obj.fill = wallcolor}
         return Cuboid(iter,obj.type,[obj.width/1000,obj.height/1000,obj.depth/1000],[-obj.posX/1000,obj.posZ/1000,obj.posY/1000],obj.fill,obj.theta)
     }
@@ -114,8 +122,89 @@ export function loadCorner(points,height){
     geometry.setAttribute(
         'position',
         new BufferAttribute(new Float32Array(positions), positionNumComponents));
-    
     return <mesh geometry={geometry}><meshBasicMaterial attach="material" side={DoubleSide} color={wallcolor}/></mesh>
+}
+
+export function loadFloors(corners, height) {
+    let cornersByFloor = [];
+    let floorHeight = 0;
+    let currentFloor = [];
+
+    for(let point of corners) {
+        if(point[2] == floorHeight) {
+            currentFloor.push(point);
+            if(point == corners[corners.length-1]) {
+                cornersByFloor.push(currentFloor);
+            }
+            continue;
+        }
+
+        cornersByFloor.push(currentFloor);
+        currentFloor = [point]
+        floorHeight = point[2];
+    }
+
+    let totalX;
+    let totalY;
+    let averageX;
+    let averageY;
+    let distance;
+    let optimalPoint;
+    let normalizedPoints = [];
+
+    for(let floor of cornersByFloor) {
+        totalX = 0;
+        totalY = 0;
+
+        for(let point of floor) {
+            totalX += point[0];
+            totalY += point[1];
+        }
+
+        averageX = totalX/floor.length;
+        averageY = totalY/floor.length;
+        distance = Math.abs(averageX - floor[0][0]) + Math.abs(averageY - floor[0][1]);
+        optimalPoint = 0;
+
+        for(let i = 1; i < floor.length; i++) {
+            let tempDistance = Math.abs(averageX - floor[i][0]) + Math.abs(averageY - floor[i][1]);
+            if(tempDistance < distance) {
+                distance = tempDistance;
+                optimalPoint = i;
+            }
+        }
+        
+        for(let i = 0; i < floor.length; i++) {
+            if(i == floor.length-1) {
+                normalizedPoints.push(floor[optimalPoint]);
+                normalizedPoints.push(floor[i]);
+                normalizedPoints.push(floor[0]);
+                continue;
+            }
+            normalizedPoints.push(floor[optimalPoint]);
+            normalizedPoints.push(floor[i]);
+            normalizedPoints.push(floor[i+1]);
+        }
+    }
+
+    let vertices = [];
+
+    for (let i = 0; i< normalizedPoints.length;i++) {
+        let polygon = normalizedPoints[i]
+        vertices.push([-polygon[0]/1000,polygon[2]/1000,polygon[1]/1000])
+    }
+   
+    const positions = [];
+    for (const vertex of vertices) {
+        positions.push(...vertex);
+    }
+
+    const geometry = new BufferGeometry();
+    const positionNumComponents = 3;
+    geometry.setAttribute(
+        'position',
+        new BufferAttribute(new Float32Array(positions), positionNumComponents));
+    return <mesh geometry={geometry}><meshBasicMaterial attach="material" side={DoubleSide} color={"#FF00FF"}/></mesh>
 }
 
 export function LoadParcel(points) {
