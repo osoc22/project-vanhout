@@ -1,9 +1,11 @@
 // import logo from './logo.svg';
 import './App.css';
+import './react-autosuggest.css';
 import React, { Component,useEffect, useState} from 'react';
 import {Canvas, extend, useThree} from '@react-three/fiber';
 import {OrbitControls} from'three/examples/jsm/controls/OrbitControls';
 import {getJsonByProjectId, loadObjectsFromJson} from './components/ObjectLoader';
+import AddressForm from './components/AddressForm';
 // import * as THREE from 'three';
 
 extend({OrbitControls});
@@ -42,6 +44,17 @@ function App() {
 
   return (
   <div className='App'>
+      <AddressForm />
+  </div>
+
+  );
+}
+
+/* function App() {
+
+  return (
+  <div className='App'>
+      <AddressForm />
       <Canvas>
         <Orbit/>
         <Building projectId={13}/>
@@ -49,6 +62,6 @@ function App() {
   </div>
 
   );
-}
+} */
 
 export default App;
