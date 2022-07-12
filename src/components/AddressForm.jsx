@@ -80,7 +80,6 @@ function AddressForm(props){
         for (const [fieldName, [_, setFieldNameSuggestions]] of Object.entries(suggestions)){
         //for (const [fieldName, fieldNameMethods] of Object.entries(suggestions)){
             //let setFieldNameSuggestions = fieldNameMethods[1];
-            console.log("# suggestions: "+ String(generalSuggestions.length));
             let newFieldNameSuggestions = generalSuggestions.map(x => ({[fieldName]: x[fieldName]}));
             setFieldNameSuggestions(newFieldNameSuggestions);
         }
@@ -90,13 +89,6 @@ function AddressForm(props){
         updateAllSuggestions()
     }, [generalSuggestions]);
 
-    useEffect(()=>{
-        console.log(houseNumberSuggestions);
-    },[houseNumberSuggestions]);
-
-    useEffect(() => {
-        console.log(streetNameSuggestions);
-    }, [streetNameSuggestions]);
 
     const initialiseSuggestions = (key) => {
         let [fieldSuggestions, setFieldSuggestions] = suggestions[key];
@@ -118,8 +110,7 @@ function AddressForm(props){
 
    function handleSubmit(event){
         event.preventDefault();
-        console.log("SUBMITTED");
-        console.log(event.target.value);
+        console.log(generalSuggestions[0].projectID);
     }
 
 
@@ -166,7 +157,6 @@ function AddressForm(props){
         value: houseNumber,
         onChange: (event,houseNumberVal) => {
             //setHouseNumber(houseNumberVal.target.value)}
-            console.log(houseNumberVal)
             setHouseNumber(houseNumberVal.newValue)
         },
         onBlur: (event,ignore) => {
@@ -193,7 +183,7 @@ function AddressForm(props){
     const cityProps = {
         placeholder: 'Type a house number',
         value: city,
-        onChange: (cityVal) => {
+        onChange: (event,cityVal) => {
             //setCity(cityVal.target.value)}
             setCity(cityVal.newValue)
         },
@@ -230,7 +220,7 @@ function AddressForm(props){
                 <div>
                     <label htmlFor="houseNumber">House number:</label>
                     <Autosuggest
-                        suggestions={generalSuggestions}
+                        suggestions={houseNumberSuggestions}
                         onSuggestionsFetchRequested={onSuggestionsFetchRequested("houseNumber")}
                         onSuggestionsClearRequested={onSuggestionsClearRequested("houseNumber")}
                         alwaysRenderSuggestions={showStreetNumberSuggestions}
@@ -244,7 +234,7 @@ function AddressForm(props){
                 <div>
                     <label htmlFor="postalCode">Postal code:</label>
                     <Autosuggest
-                        suggestions={generalSuggestions}
+                        suggestions={postalCodeSuggestions}
                         onSuggestionsFetchRequested={onSuggestionsFetchRequested("postalCode")}
                         onSuggestionsClearRequested={onSuggestionsClearRequested("postalCode")}
                         alwaysRenderSuggestions={showPostalCodeSuggestions}
@@ -258,7 +248,7 @@ function AddressForm(props){
                 <div>
                     <label htmlFor="city">City:</label>
                     <Autosuggest
-                        suggestions={generalSuggestions}
+                        suggestions={citySuggestions}
                         onSuggestionsFetchRequested={onSuggestionsFetchRequested("city")}
                         onSuggestionsClearRequested={onSuggestionsClearRequested("city")}
                         alwaysRenderSuggestions={showCitySuggestions}
