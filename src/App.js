@@ -4,7 +4,7 @@ import React, { Component,useEffect, useState, Suspense} from 'react';
 import {Canvas, extend, useThree, useLoader} from '@react-three/fiber';
 import {OrbitControls} from'three/examples/jsm/controls/OrbitControls';
 import {getJsonByProjectId} from './components/ObjectLoader';
-import {BathroomModel_color, } from './Model';
+import {BathroomModel_Big, } from './Model';
 import CameraControls from'./components/CamerControls';
 import { OrthographicCamera, PerspectiveCamera } from 'three';
 // import * as THREE from 'three';
@@ -54,13 +54,13 @@ function App() {
 
   return (
   <div className='App'>
-      <Canvas camera={{position:[1,1,1]}}>
+      <Canvas camera={{position:[0,0,-10], fov:75}}>
         {/* <CameraControls/> */}
         <ambientLight intensity={1}/>
         <Orbit/>
         <axesHelper args={[5]}/>
         <Suspense fallback={null}>
-          <BathroomModel_color path='/Models/bathroomtest.gltf'/>
+          <BathroomModel_Big path='/Models/Big_bathroom.gltf'/>
         </Suspense>
       </Canvas>
   </div>
