@@ -29,43 +29,39 @@ const Building = (prop) => {
     fetchProject()
   }, [projectId])
 
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     fetchProject()
+  //   }, 1000);
+  //   return () => clearInterval(interval);
+  // }, []);
+
   return projectMesh
 
 }
 
-const Box = () => {
-  return(
-    <mesh>
-    <boxBufferGeometry/>
-    <meshBasicMaterial/>
-    {/* Check the Axes of the object, args is the size*/}
-    <axesHelper args={[5]}/>
-    </mesh>
-  )
-}
+// function App() {
+
+//   return (
+//   <div className='App'>
+//       <AddressForm />
+//   </div>
+
+//   );
+// }
 
 function App() {
 
   return (
   <div className='App'>
-      <AddressForm />
-  </div>
-
-  );
-}
-
-/* function App() {
-
-  return (
-  <div className='App'>
-      <AddressForm />
+      {/* <AddressForm /> */}
       <Canvas>
         <Orbit/>
-        <Building projectId={29}/>
+        <Building projectId={13}/>
       </Canvas>
   </div>
 
-  );
-} */
+)};
+
 
 export default App;
