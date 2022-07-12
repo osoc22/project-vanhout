@@ -61,26 +61,29 @@ const CameraHelper = () => {
 // }
 
 function App() {
-
-  // <Canvas camera={{position:[1,1,1]}}>
-  // <CameraControls/>
-  // <ambientLight intensity={1}/>
-  // <Orbit/>
-  // <axesHelper args={[5]}/>
-  // <Suspense fallback={null}>
-  //   <BathroomModel_color path='/Models/bathroomtest.gltf'/>
-  // </Suspense>
-
   return (
   <div className='App'>
-      {/* <AddressForm /> */}
-      <Canvas>
-        <Orbit/>
-        <Building projectId={13}/>
-      </Canvas>
-  </div>
+    <Canvas camera={{position:[1,1,1]}}>
+      {/* <CameraControls/> */}
+      <ambientLight intensity={1}/>
+      <Orbit/>
+      <Suspense fallback={null}>
+        <BathroomModel_color path='/Models/bathroomtest.gltf'/>
+        <axesHelper args={[5]}/>
+      </Suspense>
+    </Canvas>
+  </div>)}
 
-)};
+//   return (
+//   <div className='App'>
+//     {/* <AddressForm /> */}
+//     <Canvas>
+//       <Orbit/>
+//       <Building projectId={13}/>
+//     </Canvas>
+//   </div>
+
+// )};
 
 
 export default App;
