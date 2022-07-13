@@ -98,7 +98,6 @@ function AddressForm(props){
 
     useEffect(() => {
         updateAllSuggestions()
-        console.log(`GS: ${JSON.stringify(generalSuggestions)}`);
     }, [generalSuggestions]);
 
 
@@ -123,7 +122,6 @@ function AddressForm(props){
    function handleSubmit(event){
         event.preventDefault();
         const projectId = generalSuggestions[0].projectID;
-        console.log(projectId);
         setProjectId(projectId);
         history.push(`/visualisation/${projectId}`);
     }
@@ -145,22 +143,7 @@ function AddressForm(props){
 
     // Autosuggest will call this function every time you need to clear suggestions.
     const onSuggestionsClearRequested = key => {
-        return () => {
-            console.log("clear requested");
-            console.log(`CR: ${JSON.stringify(generalSuggestions)}`);
-            //let [_, setSuggestions] = suggestions[key];
-            //setSuggestions([{key:""}]);
-
-           
-            //setGeneralSuggestions(addresses);
-
-            /*
-            for (const [fieldName, _] of Object.entries(suggestions)){
-                initialiseSuggestions(fieldName)
-            }
-            */
-            
-        }
+        return () => {}
     };
 
 
@@ -173,8 +156,6 @@ function AddressForm(props){
 
     const handleBackspace = event => {
         if (event.key === 'Backspace') {
-            // 👇️ your logic here
-            console.log('Backspace key pressed ✅');
             setGeneralSuggestions(addresses);
             for (const [fieldName, _] of Object.entries(suggestions)){
                 initialiseSuggestions(fieldName)
