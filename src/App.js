@@ -7,7 +7,7 @@ import {Canvas, extend, useThree, useLoader} from '@react-three/fiber';
 import {OrbitControls} from'three/examples/jsm/controls/OrbitControls';
 import {getJsonByProjectId, loadObjectsFromJson} from './components/ObjectLoader';
 import AddressForm from './components/AddressForm';
-import {BathroomModel_color, } from './Model';
+import {GLTFObject } from './components/GLTFModelLoader';
 import CameraControls from'./components/CamerControls';
 import { OrthographicCamera, PerspectiveCamera } from 'three';
 // import * as THREE from 'three';
@@ -68,11 +68,11 @@ function App() {
   //     <ambientLight intensity={1}/>
   //     <Orbit/>
   //     <Suspense fallback={null}>
-  //       <BathroomModel_color path='/Models/bathroomtest.gltf'/>
+  //       <GLTFObject path='/Models/Big_WC.gltf'/>
   //       <axesHelper args={[5]}/>
   //     </Suspense>
   //   </Canvas>
-  // </div>)}
+  // </div>)
 
   return (
   <div className='App'>

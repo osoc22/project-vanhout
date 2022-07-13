@@ -1,8 +1,14 @@
-import React, { Component,useEffect, useState, useMemo} from 'react';
+import React, { Component,useEffect, useState, useMemo,Suspense} from 'react';
 import { BufferGeometry, BufferAttribute, MeshBasicMaterial,DoubleSide} from 'three';
+import { GLTFObject } from './GLTFModelLoader';
 
 let wallcolor = "#777777";
 let floorThickness = 300;
+let GLTFObjects = {
+    "bathroom":{"big":{"palleteRed":"/Models/Big_bathroom.gltf"},"small":{"palleteRed":"/Models/Small_bathroom.gltf"}},
+    "toilet":{"big":{"palleteRed":"/Models/Big_WC.gltf"},"small":{"palleteRed":"/Models/Small_WC.gltf"}}
+}
+let selectedColor = "palleteRed";
 
 export async function getJsonFromUrl(url) {
     return fetch(url)
@@ -42,7 +48,7 @@ export async function loadObjectsFromJson(projectId) {
 
     const modelData = await getJsonByProjectId(projectId)
     let randomModel = Math.round(Math.random()*(modelData.length-1));
-    const latestModelData = modelData[randomModel]
+    const latestModelData = modelData[modelData.length-1]//modelData[randomModel]
     console.log(modelData)
     console.log(randomModel)
     
@@ -83,12 +89,36 @@ export function loadObj(obj,iter) {
             obj.height -= floorThickness;
             obj.posZ += 10;
         }
+
+        let gltf = loadAsGLTF(obj); 
+        if (gltf) { return gltf}
+
         return Cuboid(iter,obj.type,[obj.width/1000,obj.height/1000,obj.depth/1000],[-obj.posX/1000,obj.posZ/1000,obj.posY/1000],obj.fill,obj.theta)
     }
 }
 
-// NOTE: if obj is not found, load based on points => LoadCuboid
-export function loadObjectById() {}
+export function loadAsGLTF(obj){
+    let gltf;
+    for (let objectName in GLTFObjects) {
+        if (obj.type === objectName) {
+            for (let size in GLTFObjects[objectName]) {
+                if ((obj.properties.svg).indexOf(size) !== -1) {
+                    console.log(`found: ${size} for obj ${obj.type}`)
+                    return <Suspense fallback={null} >
+                                <group position={[-obj.posX/1000,obj.posZ/1000,obj.posY/1000]} rotation={[0,obj.theta,0]}>
+                                <GLTFObject path={GLTFObjects[objectName][size][selectedColor]} position={[-obj.width/1000/2,0,obj.depth/1000/2]}/>
+                                <axesHelper args={[5]}/>
+                                </group>
+                         </Suspense>
+                }
+            }
+            //let ref = GLTFobjects.objectName[]
+            break
+        }
+    }
+    return gltf;
+
+}
 
 export function getGeometryFromNormalizedPoints(normalizedPoints) {
     let vertices = [];
