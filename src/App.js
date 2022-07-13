@@ -6,10 +6,13 @@ import {Canvas, extend, useThree, useLoader} from '@react-three/fiber';
 import {OrbitControls} from'three/examples/jsm/controls/OrbitControls';
 import {getJsonByProjectId, loadObjectsFromJson} from './components/ObjectLoader';
 import AddressForm from './components/AddressForm';
-import {BathroomModel_Big } from './Model';
 import CameraControls from'./components/CamerControls';
 import { OrthographicCamera, PerspectiveCamera } from 'three';
+import { Router, Routes, Route} from "react-router-dom";
+import { createBrowserHistory } from "history";
 // import * as THREE from 'three';
+
+const history = createBrowserHistory();
 
 extend({OrbitControls});
 const Orbit = () => {
@@ -19,9 +22,9 @@ const Orbit = () => {
   )
 }
 
-const Building = (prop) => {
+const Building = (props) => {
   const [projectMesh,setProjectMesh] = useState([])
-  const [projectId,setProjectId] = useState(prop.projectId)
+  const [projectId,_] = useState(props.projectId);
 
   const fetchProject = async function() {
     let objects = await loadObjectsFromJson(projectId)
@@ -49,42 +52,25 @@ const CameraHelper = () => {
     </group>
 }
 
-// function App() {
-
-//   return (
-//   <div className='App'>
-//       <AddressForm />
-//   </div>
-
-//   );
-// }
-
 function App() {
+  let [projectId, setProjectId] = useState("");
+
   return (
-  <div className='App'>
-      <Canvas camera={{position:[0,0,-10], fov:75}}>
-        {/* <CameraControls/> */}
-        <ambientLight intensity={1}/>
-        <Orbit/>
-        <axesHelper args={[5]}/>
-        <Suspense fallback={null}>
-          <BathroomModel_Big path='/Models/Big_bathroom.gltf'/>
-        </Suspense>
-      </Canvas>
-  </div>
-  )
-
-//   return (
-//   <div className='App'>
-//     {/* <AddressForm /> */}
-//     <Canvas>
-//       <Orbit/>
-//       <Building projectId={13}/>
-//     </Canvas>
-//   </div>
-
-// )};
-  }
+      <Router location={history.location} history={history}>
+        <div className='App'>
+        <Routes>
+          <Route exact path="/" element={<AddressForm setProjectId={setProjectId} history={history} />}/>
+          <Route path="/visualisation/:projectId"
+                element={
+                  <Canvas>
+                    <Orbit/>
+                    <Building projectId={projectId} />
+                  </Canvas>
+                } />
+        </Routes>
+        </div>
+      </Router>
+)};
 
 
 export default App;
