@@ -15,6 +15,23 @@ Canvas{
   
 }
 
+div#left{
+  position: absolute;
+  z-index: 1;
+  top: 10vh;
+  right: 5vw;
+  color:white;
+  font-size: 20pt;
+}
+
+div#right{
+  position: absolute;
+  z-index: 1;
+  top: 10vh;
+  right: 2.5vw;
+  color:white;
+  font-size: 20pt;
+}
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
     animation: App-logo-spin infinite 20s linear;

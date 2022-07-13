@@ -8,7 +8,8 @@ import {getJsonByProjectId, loadObjectsFromJson} from './components/ObjectLoader
 import AddressForm from './components/AddressForm';
 import {BathroomModel_Big } from './Model';
 import CameraControls from'./components/CamerControls';
-import { OrthographicCamera, PerspectiveCamera } from 'three';
+import CameraButtons  from './components/CameraButtons';
+import * as THREE from 'three';
 // import * as THREE from 'three';
 
 extend({OrbitControls});
@@ -18,6 +19,39 @@ const Orbit = () => {
     <orbitControls attach='orbitControls' args={[camera, gl.domElement]}/>
   )
 }
+
+//Cursor 
+const cursor = {
+  x:0,
+  y:0
+}
+// window.addEventListener('mousemove', (e) => {
+//   cursor.x = e.clientX / sizes.width - 0.5
+//   cursor.y = -(e.clientY / sizes.height - 0.5)
+// })
+
+
+// Camera
+// const  camera = new THREE.PerspectiveCamera(70, 2, 1, 1000);
+// camera.position.z = 400;
+
+// function resizeCanvasToDisplaySize() {
+//   const canvas = renderer.domElement;
+//   const width = canvas.clientWidth;
+//   const height = canvas.clientHeight;
+//   if (canvas.width !== width ||canvas.height !== height) {
+//     // you must pass false here or three.js sadly fights the browser
+//     renderer.setSize(width, height, false);
+//     camera.aspect = width / height;
+//     camera.updateProjectionMatrix();
+//     console.log(width)
+
+//     // set render target sizes here
+//   }
+// }
+
+
+// resizeCanvasToDisplaySize();
 
 const Building = (prop) => {
   const [projectMesh,setProjectMesh] = useState([])
@@ -43,9 +77,11 @@ const Building = (prop) => {
 }
 
 const CameraHelper = () => {
-  const camera = new OrthographicCamera(-2,2,2,-2);
-  return <group position={[0,0,0]}>
+  const  camera = new THREE.PerspectiveCamera(75, 2, 1, 5);
+  console.log(camera)
+  return <group position={[0,3,-20]}>
     <cameraHelper args={[camera]} />
+    
     </group>
 }
 
@@ -62,8 +98,11 @@ const CameraHelper = () => {
 function App() {
   return (
   <div className='App'>
+    <CameraButtons/>
       <Canvas camera={{position:[0,0,-10], fov:75}}>
         {/* <CameraControls/> */}
+        <CameraHelper/>
+        
         <ambientLight intensity={1}/>
         <Orbit/>
         <axesHelper args={[5]}/>
