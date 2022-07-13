@@ -145,6 +145,12 @@ function AddressForm(props){
             //let [_, setSuggestions] = suggestions[key];
             //setSuggestions([{key:""}]);
             //setGeneralSuggestions(addresses);
+
+            /*
+            for (const [fieldName, _] of Object.entries(suggestions)){
+                initialiseSuggestions(fieldName)
+            }
+            */
         }
     };
 
