@@ -6,7 +6,7 @@ import {Canvas, extend, useThree} from '@react-three/fiber';
 import {OrbitControls} from'three/examples/jsm/controls/OrbitControls';
 import {getJsonByProjectId, loadObjectsFromJson} from './components/ObjectLoader';
 import AddressForm from './components/AddressForm';
-import { Router, Routes, Route, useParams } from "react-router-dom";
+import { Router, Routes, Route} from "react-router-dom";
 import { createBrowserHistory } from "history";
 // import * as THREE from 'three';
 
@@ -62,17 +62,20 @@ const Building = (props) => {
 function App() {
   let [projectId, setProjectId] = useState("");
 
+
+
+  
   
   useEffect(()=>{
     console.log(`PROJECT ID: ${projectId}`);
 
+    /*
     if (projectId){
-      history.push(`/visualisation/:${projectId}`);
+      history.push(`/visualisation/${projectId}`);
     }
-
-      
-
+    */
   },[projectId]);
+  
   
 
  
@@ -81,7 +84,7 @@ function App() {
       <Router location={history.location} history={history}>
         <div className='App'>
         <Routes>
-          <Route exact path="/" element={<AddressForm setProjectId={setProjectId} />}/>
+          <Route exact path="/" element={<AddressForm setProjectId={setProjectId} history={history} />}/>
           <Route path="/visualisation/:projectId"
                 element={
                   <Canvas>

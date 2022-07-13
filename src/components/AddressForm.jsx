@@ -52,6 +52,7 @@ const makeRenderSuggestion = key => {
 
 function AddressForm(props){
     let setProjectId = props.setProjectId;
+    let history = props.history;
 
     let [streetName, setStreetName] = useState("");
     let [streetNumber, setStreetNumber] = useState("");
@@ -122,6 +123,7 @@ function AddressForm(props){
         const projectId = generalSuggestions[0].projectID;
         console.log(projectId);
         setProjectId(projectId);
+        history.push(`/visualisation/${projectId}`);
     }
 
 
