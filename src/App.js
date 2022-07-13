@@ -81,7 +81,7 @@ function App() {
       <Orbit/>
       {/* <ambientLight intensity={1} /> */}
       <pointLight color="#00FF20" intensity={800} position={[0,0, 10]} castShadow={true} decay={0}/>
-      <Building projectId={81}/>
+      <Building projectId={13}/>
     </Canvas>
   </div>
 

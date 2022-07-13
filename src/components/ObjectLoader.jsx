@@ -2,6 +2,7 @@ import React, { Component,useEffect, useState, useMemo} from 'react';
 import { BufferGeometry, BufferAttribute, MeshBasicMaterial,DoubleSide} from 'three';
 
 let wallcolor = "#777777";
+let floorThickness = 300;
 
 export async function getJsonFromUrl(url) {
     return fetch(url)
@@ -64,7 +65,7 @@ export async function loadObjectsFromJson(projectId) {
         object = loadObj(obj,i);
         if (object) { objects.push(object)}
     }
-    objects.push(loadFloors(corners, 30))
+    objects.push(loadFloors(corners, floorThickness))
     return objects;
 }
 
@@ -76,7 +77,12 @@ export function loadObj(obj,iter) {
             obj.fill = "#555555"
             obj.height = 1}
         
-        if (obj.type == "wall" && obj.properties["wall-type"] == "open") {obj.fill = wallcolor}
+        if (obj.type == "wall") {
+            obj.fill = wallcolor
+        } else {
+            obj.height -= floorThickness;
+            obj.posZ += 10;
+        }
         return Cuboid(iter,obj.type,[obj.width/1000,obj.height/1000,obj.depth/1000],[-obj.posX/1000,obj.posZ/1000,obj.posY/1000],obj.fill,obj.theta)
     }
 }
@@ -105,26 +111,33 @@ export function getGeometryFromNormalizedPoints(normalizedPoints) {
     return geometry
 }
 
+export function addHeight(point,height) {
+    return [point[0],point[1],point[2]+height]
+}
 
 export function loadCorner(points,height){
     let normalizedPoints = []
 
     for (let i = 0;i < points.length-1; i++) {
+        // draw triangle (bottom)
         normalizedPoints.push(points[0])
         normalizedPoints.push(points[i])
         normalizedPoints.push(points[i+1])
 
-        normalizedPoints.push([points[0][0],points[0][1],points[0][2]+height])
-        normalizedPoints.push([points[i][0],points[i][1],points[i][2]+height])
-        normalizedPoints.push([points[i+1][0],points[i+1][1],points[i+1][2]+height])
+        // draw triangle (top)
+        normalizedPoints.push(addHeight(points[0],height))
+        normalizedPoints.push(addHeight(points[i],height))
+        normalizedPoints.push(addHeight(points[i+1],height))
 
-        normalizedPoints.push([points[i][0],points[i][1],points[i][2]])
-        normalizedPoints.push([points[i][0],points[i][1],points[i][2]+height])
-        normalizedPoints.push([points[i+1][0],points[i+1][1],points[i+1][2]])
+        // draw side triangle (bottom)
+        normalizedPoints.push(points[i])
+        normalizedPoints.push(addHeight(points[i],height))
+        normalizedPoints.push(points[i+1])
 
-        normalizedPoints.push([points[i][0],points[i][1],points[i][2]+height])
-        normalizedPoints.push([points[i+1][0],points[i+1][1],points[i+1][2]])
-        normalizedPoints.push([points[i+1][0],points[i+1][1],points[i+1][2]+height])
+        // draw side triangle (top)
+        normalizedPoints.push(addHeight(points[i],height))
+        normalizedPoints.push(points[i+1])
+        normalizedPoints.push(addHeight(points[i+1],height))
     }
 
     let geometry = getGeometryFromNormalizedPoints(normalizedPoints)
@@ -188,20 +201,35 @@ export function loadFloors(points, height) {
         optimalPoint = getOptimalPoint(floor);
         
         for(let i = 0; i < floor.length; i++) {
+            let nextCorner = i+1
             if(i == floor.length-1) {
-                normalizedPoints.push(floor[optimalPoint]);
-                normalizedPoints.push(floor[i]);
-                normalizedPoints.push(floor[0]);
-                continue;
+                nextCorner = 0;
             }
+
+            // draw triangle (top) (floor)
             normalizedPoints.push(floor[optimalPoint]);
             normalizedPoints.push(floor[i]);
-            normalizedPoints.push(floor[i+1]);
+            normalizedPoints.push(floor[nextCorner]);
+
+            // draw triangle (bottom) (floor)
+            normalizedPoints.push(addHeight(floor[optimalPoint],-height))
+            normalizedPoints.push(addHeight(floor[i],-height))
+            normalizedPoints.push(addHeight(floor[nextCorner],-height))
+
+            // draw triangle (top) (roof)
+            normalizedPoints.push(addHeight(floor[optimalPoint],3000));
+            normalizedPoints.push(addHeight(floor[i],3000));
+            normalizedPoints.push(addHeight(floor[nextCorner],3000));
+
+            // draw triangle (bottom) (roof)
+            normalizedPoints.push(addHeight(floor[optimalPoint],-height+3000))
+            normalizedPoints.push(addHeight(floor[i],-height+3000))
+            normalizedPoints.push(addHeight(floor[nextCorner],-height+3000))
         }
     }
 
     let geometry = getGeometryFromNormalizedPoints(normalizedPoints);
-    return <mesh geometry={geometry}><meshBasicMaterial attach="material" side={DoubleSide} color={"#333333"}  transparent opacity={0.8}/></mesh>
+    return <mesh geometry={geometry}><meshBasicMaterial attach="material" side={DoubleSide} color={"#333333"}/></mesh>
 }
 
 export function LoadParcel(points) {
