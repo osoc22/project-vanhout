@@ -84,9 +84,29 @@ export function loadObj(obj,iter) {
 // NOTE: if obj is not found, load based on points => LoadCuboid
 export function loadObjectById() {}
 
+export function getGeometryFromNormalizedPoints(normalizedPoints) {
+    let vertices = [];
+
+    for (let i = 0; i< normalizedPoints.length;i++) {
+        let polygon = normalizedPoints[i]
+        vertices.push([-polygon[0]/1000,polygon[2]/1000,polygon[1]/1000])
+    }
+   
+    const positions = [];
+    for (const vertex of vertices) {
+        positions.push(...vertex);
+    }
+
+    const geometry = new BufferGeometry();
+    const positionNumComponents = 3;
+    geometry.setAttribute(
+        'position',
+        new BufferAttribute(new Float32Array(positions), positionNumComponents))
+    return geometry
+}
+
 
 export function loadCorner(points,height){
-    let vertices = []
     let normalizedPoints = []
 
     for (let i = 0;i < points.length-1; i++) {
@@ -107,33 +127,20 @@ export function loadCorner(points,height){
         normalizedPoints.push([points[i+1][0],points[i+1][1],points[i+1][2]+height])
     }
 
-    for (let i = 0; i< normalizedPoints.length;i++) {
-        let polygon = normalizedPoints[i]
-        vertices.push([-polygon[0]/1000,polygon[2]/1000,polygon[1]/1000])
-    }
-   
-    const positions = [];
-    for (const vertex of vertices) {
-        positions.push(...vertex);
-    }
+    let geometry = getGeometryFromNormalizedPoints(normalizedPoints)
 
-    const geometry = new BufferGeometry();
-    const positionNumComponents = 3;
-    geometry.setAttribute(
-        'position',
-        new BufferAttribute(new Float32Array(positions), positionNumComponents));
     return <mesh geometry={geometry}><meshBasicMaterial attach="material" side={DoubleSide} color={wallcolor}/></mesh>
 }
 
-export function loadFloors(corners, height) {
-    let cornersByFloor = [];
+export function divideFloors(points) {
+    let cornersByFloor = []
     let floorHeight = 0;
     let currentFloor = [];
 
-    for(let point of corners) {
+    for(let point of points) {
         if(point[2] == floorHeight) {
             currentFloor.push(point);
-            if(point == corners[corners.length-1]) {
+            if(point == points[points.length-1]) {
                 cornersByFloor.push(currentFloor);
             }
             continue;
@@ -143,36 +150,42 @@ export function loadFloors(corners, height) {
         currentFloor = [point]
         floorHeight = point[2];
     }
+    return cornersByFloor
+}
 
-    let totalX;
-    let totalY;
-    let averageX;
-    let averageY;
-    let distance;
+export function getOptimalPoint(floor) {
+    let totalX = 0;
+    let totalY = 0;
+
+    for(let point of floor) {
+        totalX += point[0];
+        totalY += point[1];
+    }
+
+    const averageX = totalX/floor.length;
+    const averageY = totalY/floor.length;
+    let distance = Math.abs(averageX - floor[0][0]) + Math.abs(averageY - floor[0][1]);
+    let optimalPoint = 0;
+
+    for(let i = 1; i < floor.length; i++) {
+        let tempDistance = Math.abs(averageX - floor[i][0]) + Math.abs(averageY - floor[i][1]);
+        if(tempDistance < distance) {
+            distance = tempDistance;
+            optimalPoint = i;
+        }
+    }
+
+    return optimalPoint
+}
+
+export function loadFloors(points, height) {
+    let cornersByFloor = divideFloors(points);
+
     let optimalPoint;
     let normalizedPoints = [];
 
     for(let floor of cornersByFloor) {
-        totalX = 0;
-        totalY = 0;
-
-        for(let point of floor) {
-            totalX += point[0];
-            totalY += point[1];
-        }
-
-        averageX = totalX/floor.length;
-        averageY = totalY/floor.length;
-        distance = Math.abs(averageX - floor[0][0]) + Math.abs(averageY - floor[0][1]);
-        optimalPoint = 0;
-
-        for(let i = 1; i < floor.length; i++) {
-            let tempDistance = Math.abs(averageX - floor[i][0]) + Math.abs(averageY - floor[i][1]);
-            if(tempDistance < distance) {
-                distance = tempDistance;
-                optimalPoint = i;
-            }
-        }
+        optimalPoint = getOptimalPoint(floor);
         
         for(let i = 0; i < floor.length; i++) {
             if(i == floor.length-1) {
@@ -187,24 +200,8 @@ export function loadFloors(corners, height) {
         }
     }
 
-    let vertices = [];
-
-    for (let i = 0; i< normalizedPoints.length;i++) {
-        let polygon = normalizedPoints[i]
-        vertices.push([-polygon[0]/1000,polygon[2]/1000,polygon[1]/1000])
-    }
-   
-    const positions = [];
-    for (const vertex of vertices) {
-        positions.push(...vertex);
-    }
-
-    const geometry = new BufferGeometry();
-    const positionNumComponents = 3;
-    geometry.setAttribute(
-        'position',
-        new BufferAttribute(new Float32Array(positions), positionNumComponents));
-    return <mesh geometry={geometry}><meshBasicMaterial attach="material" side={DoubleSide} color={"#FF00FF"}/></mesh>
+    let geometry = getGeometryFromNormalizedPoints(normalizedPoints);
+    return <mesh geometry={geometry}><meshBasicMaterial attach="material" side={DoubleSide} color={"#333333"}  transparent opacity={0.8}/></mesh>
 }
 
 export function LoadParcel(points) {

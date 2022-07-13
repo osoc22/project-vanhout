@@ -79,7 +79,9 @@ function App() {
     {/* <AddressForm /> */}
     <Canvas>
       <Orbit/>
-      <Building projectId={13}/>
+      {/* <ambientLight intensity={1} /> */}
+      <pointLight color="#00FF20" intensity={800} position={[0,0, 10]} castShadow={true} decay={0}/>
+      <Building projectId={81}/>
     </Canvas>
   </div>
 
