@@ -88,8 +88,6 @@ function AddressForm(props){
 
     function updateAllSuggestions(){
         for (const [fieldName, [_, setFieldNameSuggestions]] of Object.entries(suggestions)){
-        //for (const [fieldName, fieldNameMethods] of Object.entries(suggestions)){
-            //let setFieldNameSuggestions = fieldNameMethods[1];
             let newFieldNameSuggestions = generalSuggestions.map(x => ({[fieldName]: x[fieldName]}));
             setFieldNameSuggestions(newFieldNameSuggestions);
         }
@@ -163,7 +161,6 @@ function AddressForm(props){
         placeholder: 'Type a street name',
         value: streetName,
         onChange: (event,streetNameVal) => {
-           // setStreetName(streetNameVal.target.value)}
            setStreetName(streetNameVal.newValue);
         },
         onBlur: (event,ignore) => {
@@ -177,7 +174,6 @@ function AddressForm(props){
         placeholder: 'Type a street number',
         value: streetNumber,
         onChange: (event,streetNumberVal) => {
-            //setstreetNumber(streetNumberVal.target.value)}
             setStreetNumber(streetNumberVal.newValue)
         },
         onBlur: (event,ignore) => {
@@ -191,7 +187,6 @@ function AddressForm(props){
         placeholder: 'Type a postal code',
         value: postalCode,
         onChange: (event,postalCodeVal) => {
-            //setPostalCode(postalCodeVal.target.value)}
             setPostalCode(postalCodeVal.newValue)
         },
         onBlur: (event,ignore) => {
@@ -205,7 +200,6 @@ function AddressForm(props){
         placeholder: 'Type a house number',
         value: city,
         onChange: (event,cityVal) => {
-            //setCity(cityVal.target.value)}
             setCity(cityVal.newValue)
         },
         onBlur: (event,ignore) => {
@@ -219,7 +213,6 @@ function AddressForm(props){
 
     /* --- code from: https://github.com/moroshko/react-autosuggest#basic-usage ] --- */
 
-    //          shouldRenderSuggestions={shouldRenderSuggestions}
     return (
         <div>
             <form onSubmit={handleSubmit}>

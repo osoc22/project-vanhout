@@ -22,7 +22,6 @@ const Orbit = () => {
 
 const Building = (props) => {
   const [projectMesh,setProjectMesh] = useState([])
-  //const [projectId,setProjectId] = useState(props.projectId)
   const [projectId,_] = useState(props.projectId);
 
   const fetchProject = async function() {
@@ -31,10 +30,6 @@ const Building = (props) => {
   }
 
   useEffect (() => {
-    if(projectId){
-      console.log(`ID: ${typeof(projectId)}`);
-    }
-
     fetchProject()
   }, [projectId])
 
@@ -49,36 +44,8 @@ const Building = (props) => {
 
 }
 
-// function App() {
-
-//   return (
-//   <div className='App'>
-//       <AddressForm />
-//   </div>
-
-//   );
-// }
-
 function App() {
   let [projectId, setProjectId] = useState("");
-
-
-
-  
-  
-  useEffect(()=>{
-    console.log(`PROJECT ID: ${projectId}`);
-
-    /*
-    if (projectId){
-      history.push(`/visualisation/${projectId}`);
-    }
-    */
-  },[projectId]);
-  
-  
-
- 
 
   return (
       <Router location={history.location} history={history}>
