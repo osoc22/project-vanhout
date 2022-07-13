@@ -98,6 +98,7 @@ function AddressForm(props){
 
     useEffect(() => {
         updateAllSuggestions()
+        console.log(`GS: ${JSON.stringify(generalSuggestions)}`);
     }, [generalSuggestions]);
 
 
@@ -145,8 +146,12 @@ function AddressForm(props){
     // Autosuggest will call this function every time you need to clear suggestions.
     const onSuggestionsClearRequested = key => {
         return () => {
+            console.log("clear requested");
+            console.log(`CR: ${JSON.stringify(generalSuggestions)}`);
             //let [_, setSuggestions] = suggestions[key];
             //setSuggestions([{key:""}]);
+
+           
             //setGeneralSuggestions(addresses);
 
             /*
@@ -154,6 +159,7 @@ function AddressForm(props){
                 initialiseSuggestions(fieldName)
             }
             */
+            
         }
     };
 
@@ -165,11 +171,22 @@ function AddressForm(props){
         }
     }
 
+    const handleBackspace = event => {
+        if (event.key === 'Backspace') {
+            // 👇️ your logic here
+            console.log('Backspace key pressed ✅');
+            setGeneralSuggestions(addresses);
+            for (const [fieldName, _] of Object.entries(suggestions)){
+                initialiseSuggestions(fieldName)
+            }
+          }
+    }
+
     // Autosuggest will pass through all these props to the input.
     const streetNameProps = {
         placeholder: 'Type a street name',
         value: streetName,
-        onChange: (event,streetNameVal) => {
+        onChange: (event,streetNameVal, type) => {
            setStreetName(streetNameVal.newValue);
         },
         onBlur: (event,ignore) => {
@@ -178,6 +195,8 @@ function AddressForm(props){
         onFocus: (event,ignore) => {
             setShowStreetNameSuggestions(true)
         },
+        onKeyDown: (event) => {handleBackspace(event)}
+        
     };
     const streetNumberProps = {
         placeholder: 'Type a street number',
@@ -233,9 +252,7 @@ function AddressForm(props){
                         onSuggestionsClearRequested={onSuggestionsClearRequested("streetName")}
                         alwaysRenderSuggestions={showStreetNameSuggestions}
                         onSuggestionSelected={onSuggestionSelected("streetName")}
-                      
-                     
-               
+        
                         getSuggestionValue={makeGetSuggestionValue("streetName")}
                         renderSuggestion={makeRenderSuggestion("streetName")}
                         inputProps={streetNameProps}
