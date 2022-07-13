@@ -6,6 +6,7 @@ import {Canvas, extend, useThree, useLoader} from '@react-three/fiber';
 import {OrbitControls} from'three/examples/jsm/controls/OrbitControls';
 import {getJsonByProjectId, loadObjectsFromJson} from './components/ObjectLoader';
 import AddressForm from './components/AddressForm';
+import {GLTFObject } from './components/GLTFModelLoader';
 import CameraControls from'./components/CamerControls';
 import { OrthographicCamera, PerspectiveCamera } from 'three';
 import { Router, Routes, Route} from "react-router-dom";
