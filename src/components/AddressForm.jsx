@@ -89,7 +89,9 @@ function AddressForm(props){
 
     function updateAllSuggestions(){
         for (const [fieldName, [_, setFieldNameSuggestions]] of Object.entries(suggestions)){
-            let newFieldNameSuggestions = generalSuggestions.map(x => ({[fieldName]: x[fieldName]}));
+            let uniqueSuggestions = [... new Set(generalSuggestions.map(x => x[fieldName]))];
+            uniqueSuggestions.sort();
+            let newFieldNameSuggestions = uniqueSuggestions.map(x => ({[fieldName]: x}));
             setFieldNameSuggestions(newFieldNameSuggestions);
         }
     }
