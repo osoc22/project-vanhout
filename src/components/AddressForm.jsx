@@ -2,7 +2,8 @@ import {useEffect, useState} from 'react';
 import Autosuggest from 'react-autosuggest';
 
 // https://stackoverflow.com/a/34789405
-const addresses = require('../data/splitted-addresses.json');
+//const addresses = require('../data/splitted-addresses.json');
+const addresses = require('../data/splitted-addresses-incl-no-street-number.json');
 
 /* --- [code from: https://github.com/moroshko/react-autosuggest#basic-usage --- */
 // Teach Autosuggest how to calculate suggestions for any given input value.
