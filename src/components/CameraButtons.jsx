@@ -5,17 +5,17 @@ const CameraButtons = ({}) => {
     return(
     <>
         <div id="top">
-        
+        <FontAwesomeIcon icon={faCoffee} />
         </div>
         <div id="left">
         <FontAwesomeIcon icon={faCoffee} />
         </div>
 
         <div id="right">
-                {'>'}
+        <FontAwesomeIcon icon={faCoffee} />
         </div>
         <div id="back">
-            {''}
+        <FontAwesomeIcon icon={faCoffee} />
         </div>
     </>
     )

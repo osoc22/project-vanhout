@@ -9,6 +9,8 @@ import AddressForm from './components/AddressForm';
 import {BathroomModel_Big } from './Model';
 import CameraControls from'./components/CamerControls';
 import CameraButtons  from './components/CameraButtons';
+// svgs
+
 import * as THREE from 'three';
 // import * as THREE from 'three';
 
