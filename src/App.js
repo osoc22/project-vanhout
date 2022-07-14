@@ -2,13 +2,12 @@
 import './App.css';
 import './react-autosuggest.css';
 import React, { Component,useEffect, useState,Suspense} from 'react';
-import {Canvas, extend, useThree, useLoader} from '@react-three/fiber';
+import {Canvas, extend, useThree} from '@react-three/fiber';
 import {OrbitControls} from'three/examples/jsm/controls/OrbitControls';
 import {getJsonByProjectId, loadObjectsFromJson} from './components/ObjectLoader';
 import AddressForm from './components/AddressForm';
-import {GLTFObject } from './components/GLTFModelLoader';
 import CameraControls from'./components/CamerControls';
-import { OrthographicCamera, PerspectiveCamera } from 'three';
+import { AmbientLight, OrthographicCamera, PerspectiveCamera } from 'three';
 import { Router, Routes, Route} from "react-router-dom";
 import { createBrowserHistory } from "history";
 // import * as THREE from 'three';
@@ -65,6 +64,7 @@ function App() {
                 element={
                   <Canvas>
                     <Orbit/>
+                    <ambientLight intensity={0.8} decay={10} color={"#FFFFFF"}/>
                     <Building projectId={projectId} />
                   </Canvas>
                 } />
