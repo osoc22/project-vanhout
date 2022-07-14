@@ -2,7 +2,8 @@ import {useEffect, useState} from 'react';
 import Autosuggest from 'react-autosuggest';
 
 // https://stackoverflow.com/a/34789405
-const addresses = require('../data/splitted-addresses.json');
+//const addresses = require('../data/splitted-addresses.json');
+const addresses = require('../data/splitted-addresses-incl-no-street-number.json');
 
 /* --- [code from: https://github.com/moroshko/react-autosuggest#basic-usage --- */
 // Teach Autosuggest how to calculate suggestions for any given input value.
@@ -51,21 +52,24 @@ const makeRenderSuggestion = key => {
 
 
 function AddressForm(props){
+    let setProjectId = props.setProjectId;
+    let history = props.history;
+
     let [streetName, setStreetName] = useState("");
-    let [houseNumber, setHouseNumber] = useState("");
+    let [streetNumber, setStreetNumber] = useState("");
     let [postalCode, setPostalCode] = useState("");
     let [city, setCity] = useState("");
-    // let [generalSuggestions, setGeneralSuggestions] = useState([{streetName: "", houseNumber: "", postalCode: "", city: ""}]);
+    // let [generalSuggestions, setGeneralSuggestions] = useState([{streetName: "", streetNumber: "", postalCode: "", city: ""}]);
     let [generalSuggestions, setGeneralSuggestions] = useState(addresses);
 
     let [streetNameSuggestions, setStreetNameSuggestions] = useState([{streetName:""}]);
-    let [houseNumberSuggestions, setHouseNumberSuggestions] = useState([{houseNumber:""}]);
-    let [postalCodeSuggestions, setpostalCodeSuggestions] = useState([{postalCode:""}]);
+    let [streetNumberSuggestions, setStreetNumberSuggestions] = useState([{streetNumber:""}]);
+    let [postalCodeSuggestions, setPostalCodeSuggestions] = useState([{postalCode:""}]);
     let [citySuggestions, setCitySuggestions] = useState([{city:""}]);
     let suggestions = {
         streetName: [streetNameSuggestions, setStreetNameSuggestions],
-        houseNumber: [houseNumberSuggestions, setHouseNumberSuggestions],
-        postalCode: [postalCodeSuggestions, setpostalCodeSuggestions],
+        streetNumber: [streetNumberSuggestions, setStreetNumberSuggestions],
+        postalCode: [postalCodeSuggestions, setPostalCodeSuggestions],
         city: [citySuggestions, setCitySuggestions]
     };
 
@@ -74,13 +78,20 @@ function AddressForm(props){
     let [showStreetNumberSuggestions, setShowStreetNumberSuggestions] = useState(false);
     let [showPostalCodeSuggestions, setShowPostalCodeSuggestions] = useState(false);
     let [showCitySuggestions, setShowCitySuggestions] = useState(false);
+
+    let showSuggestions = {
+        streetName: [showStreetNameSuggestions, setShowStreetNameSuggestions],
+        streetNumber: [showStreetNumberSuggestions, setShowStreetNumberSuggestions],
+        postalCode: [showPostalCodeSuggestions, setShowPostalCodeSuggestions],
+        city: [showCitySuggestions, setShowCitySuggestions]
+    }
     
 
     function updateAllSuggestions(){
         for (const [fieldName, [_, setFieldNameSuggestions]] of Object.entries(suggestions)){
-        //for (const [fieldName, fieldNameMethods] of Object.entries(suggestions)){
-            //let setFieldNameSuggestions = fieldNameMethods[1];
-            let newFieldNameSuggestions = generalSuggestions.map(x => ({[fieldName]: x[fieldName]}));
+            let uniqueSuggestions = [... new Set(generalSuggestions.map(x => x[fieldName]))];
+            uniqueSuggestions.sort();
+            let newFieldNameSuggestions = uniqueSuggestions.map(x => ({[fieldName]: x}));
             setFieldNameSuggestions(newFieldNameSuggestions);
         }
     }
@@ -110,7 +121,9 @@ function AddressForm(props){
 
    function handleSubmit(event){
         event.preventDefault();
-        console.log(generalSuggestions[0].projectID);
+        const projectId = generalSuggestions[0].projectID;
+        setProjectId(projectId);
+        history.push(`/visualisation/${projectId}`);
     }
 
 
@@ -130,19 +143,31 @@ function AddressForm(props){
 
     // Autosuggest will call this function every time you need to clear suggestions.
     const onSuggestionsClearRequested = key => {
-        return () => {
-            //let [_, setSuggestions] = suggestions[key];
-            //setSuggestions([{key:""}]);
-            //setGeneralSuggestions(addresses);
-        }
+        return () => {}
     };
+
+
+    const onSuggestionSelected = key => {
+        return (event,{suggestion, suggestionValue, suggestionIndex, sectionIndex, method}) => {
+            let [_, setShowFieldSuggestion] = showSuggestions[key];
+            setShowFieldSuggestion(false);
+        }
+    }
+
+    const handleBackspace = event => {
+        if (event.key === 'Backspace') {
+            setGeneralSuggestions(addresses);
+            for (const [fieldName, _] of Object.entries(suggestions)){
+                initialiseSuggestions(fieldName)
+            }
+          }
+    }
 
     // Autosuggest will pass through all these props to the input.
     const streetNameProps = {
         placeholder: 'Type a street name',
         value: streetName,
-        onChange: (event,streetNameVal) => {
-           // setStreetName(streetNameVal.target.value)}
+        onChange: (event,streetNameVal, type) => {
            setStreetName(streetNameVal.newValue);
         },
         onBlur: (event,ignore) => {
@@ -150,14 +175,15 @@ function AddressForm(props){
         },
         onFocus: (event,ignore) => {
             setShowStreetNameSuggestions(true)
-        }
+        },
+        onKeyDown: (event) => {handleBackspace(event)}
+        
     };
-    const houseNumberProps = {
-        placeholder: 'Type a house number',
-        value: houseNumber,
-        onChange: (event,houseNumberVal) => {
-            //setHouseNumber(houseNumberVal.target.value)}
-            setHouseNumber(houseNumberVal.newValue)
+    const streetNumberProps = {
+        placeholder: 'Type a street number',
+        value: streetNumber,
+        onChange: (event,streetNumberVal) => {
+            setStreetNumber(streetNumberVal.newValue)
         },
         onBlur: (event,ignore) => {
             setShowStreetNumberSuggestions(false)
@@ -170,7 +196,6 @@ function AddressForm(props){
         placeholder: 'Type a postal code',
         value: postalCode,
         onChange: (event,postalCodeVal) => {
-            //setPostalCode(postalCodeVal.target.value)}
             setPostalCode(postalCodeVal.newValue)
         },
         onBlur: (event,ignore) => {
@@ -184,7 +209,6 @@ function AddressForm(props){
         placeholder: 'Type a house number',
         value: city,
         onChange: (event,cityVal) => {
-            //setCity(cityVal.target.value)}
             setCity(cityVal.newValue)
         },
         onBlur: (event,ignore) => {
@@ -198,7 +222,6 @@ function AddressForm(props){
 
     /* --- code from: https://github.com/moroshko/react-autosuggest#basic-usage ] --- */
 
-    //          shouldRenderSuggestions={shouldRenderSuggestions}
     return (
         <div>
             <form onSubmit={handleSubmit}>
@@ -209,8 +232,8 @@ function AddressForm(props){
                         onSuggestionsFetchRequested={onSuggestionsFetchRequested("streetName")}
                         onSuggestionsClearRequested={onSuggestionsClearRequested("streetName")}
                         alwaysRenderSuggestions={showStreetNameSuggestions}
-                     
-               
+                        onSuggestionSelected={onSuggestionSelected("streetName")}
+        
                         getSuggestionValue={makeGetSuggestionValue("streetName")}
                         renderSuggestion={makeRenderSuggestion("streetName")}
                         inputProps={streetNameProps}
@@ -218,16 +241,17 @@ function AddressForm(props){
                 </div>
                 <div className="invisible-div"></div>
                 <div>
-                    <label htmlFor="houseNumber">House number:</label>
+                    <label htmlFor="streetNumber">Street number:</label>
                     <Autosuggest
-                        suggestions={houseNumberSuggestions}
-                        onSuggestionsFetchRequested={onSuggestionsFetchRequested("houseNumber")}
-                        onSuggestionsClearRequested={onSuggestionsClearRequested("houseNumber")}
+                        suggestions={streetNumberSuggestions}
+                        onSuggestionsFetchRequested={onSuggestionsFetchRequested("streetNumber")}
+                        onSuggestionsClearRequested={onSuggestionsClearRequested("streetNumber")}
                         alwaysRenderSuggestions={showStreetNumberSuggestions}
+                        onSuggestionSelected={onSuggestionSelected("streetNumber")}
                
-                        getSuggestionValue={makeGetSuggestionValue("houseNumber")}
-                        renderSuggestion={makeRenderSuggestion("houseNumber")}
-                        inputProps={houseNumberProps}
+                        getSuggestionValue={makeGetSuggestionValue("streetNumber")}
+                        renderSuggestion={makeRenderSuggestion("streetNumber")}
+                        inputProps={streetNumberProps}
                     />
                 </div>
                 <div className="invisible-div"></div>
@@ -238,6 +262,7 @@ function AddressForm(props){
                         onSuggestionsFetchRequested={onSuggestionsFetchRequested("postalCode")}
                         onSuggestionsClearRequested={onSuggestionsClearRequested("postalCode")}
                         alwaysRenderSuggestions={showPostalCodeSuggestions}
+                        onSuggestionSelected={onSuggestionSelected("postalCode")}
                
                         getSuggestionValue={makeGetSuggestionValue("postalCode")}
                         renderSuggestion={makeRenderSuggestion("postalCode")}
@@ -252,6 +277,7 @@ function AddressForm(props){
                         onSuggestionsFetchRequested={onSuggestionsFetchRequested("city")}
                         onSuggestionsClearRequested={onSuggestionsClearRequested("city")}
                         alwaysRenderSuggestions={showCitySuggestions}
+                        onSuggestionSelected={onSuggestionSelected("city")}
                
                         getSuggestionValue={makeGetSuggestionValue("city")}
                         renderSuggestion={makeRenderSuggestion("city")}
@@ -259,7 +285,7 @@ function AddressForm(props){
                     />
                 </div>
                 <div className="invisible-div"></div>
-                <input type="submit" value="Submit" />
+                <input type="submit" value="Submit"/>
             </form>
         </div>
 

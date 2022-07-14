@@ -1,7 +1,14 @@
-import React, { Component,useEffect, useState, useMemo} from 'react';
+import React, { Component,useEffect, useState, useMemo,Suspense} from 'react';
 import { BufferGeometry, BufferAttribute, MeshBasicMaterial,DoubleSide} from 'three';
+import { GLTFObject } from './GLTFModelLoader';
 
 let wallcolor = "#777777";
+let floorThickness = 300;
+let GLTFObjects = {
+    "bathroom":{"big":{"palleteRed":"/Models/Big_bathroom.gltf"},"small":{"palleteRed":"/Models/Small_bathroom.gltf"}},
+    "toilet":{"big":{"palleteRed":"/Models/Big_WC.gltf"},"small":{"palleteRed":"/Models/Small_WC.gltf"}}
+}
+let selectedColor = "palleteRed";
 
 export async function getJsonFromUrl(url) {
     return fetch(url)
@@ -41,22 +48,30 @@ export async function loadObjectsFromJson(projectId) {
 
     const modelData = await getJsonByProjectId(projectId)
     let randomModel = Math.round(Math.random()*(modelData.length-1));
-    const latestModelData = modelData[randomModel]
+    const latestModelData = modelData[modelData.length-1]//modelData[randomModel]
     console.log(modelData)
     console.log(randomModel)
     
     let objects = [];
     let object;
     let obj;
+    let corners = [];
+    let corner;
 
     //objects.push(LoadParcel(latestModelData.parcel));
 
     for (let i=0;i<latestModelData.elements.length;i++) {
         obj = latestModelData.elements[i]
+        if (obj.type == "corner") {
+            corner = loadCorner(obj.points,obj.height)
+            objects.push(corner)
+            corners.push(obj.points[0])
+            continue
+        }
         object = loadObj(obj,i);
-
         if (object) { objects.push(object)}
     }
+    objects.push(loadFloors(corners, floorThickness))
     return objects;
 }
 
@@ -64,40 +79,49 @@ export async function loadObjectsFromJson(projectId) {
 export function loadObj(obj,iter) {
     if (["building"].indexOf(obj.type) == -1) {
         if (obj.fill === 'none') {
-            //return;
+            return;
             obj.fill = "#555555"
             obj.height = 1}
-        if (obj.type == "corner") { return loadCorner(obj.points,obj.height)}
-        if (obj.type == "wall" && obj.properties["wall-type"] == "open") {obj.fill = wallcolor}
+        
+        if (obj.type == "wall") {
+            obj.fill = wallcolor
+        } else {
+            obj.height -= floorThickness;
+            obj.posZ += 10;
+        }
+
+        let gltf = loadAsGLTF(obj); 
+        if (gltf) { return gltf}
+
         return Cuboid(iter,obj.type,[obj.width/1000,obj.height/1000,obj.depth/1000],[-obj.posX/1000,obj.posZ/1000,obj.posY/1000],obj.fill,obj.theta)
     }
 }
 
-// NOTE: if obj is not found, load based on points => LoadCuboid
-export function loadObjectById() {}
-
-
-export function loadCorner(points,height){
-    let vertices = []
-    let normalizedPoints = []
-
-    for (let i = 0;i < points.length-1; i++) {
-        normalizedPoints.push(points[0])
-        normalizedPoints.push(points[i])
-        normalizedPoints.push(points[i+1])
-
-        normalizedPoints.push([points[0][0],points[0][1],points[0][2]+height])
-        normalizedPoints.push([points[i][0],points[i][1],points[i][2]+height])
-        normalizedPoints.push([points[i+1][0],points[i+1][1],points[i+1][2]+height])
-
-        normalizedPoints.push([points[i][0],points[i][1],points[i][2]])
-        normalizedPoints.push([points[i][0],points[i][1],points[i][2]+height])
-        normalizedPoints.push([points[i+1][0],points[i+1][1],points[i+1][2]])
-
-        normalizedPoints.push([points[i][0],points[i][1],points[i][2]+height])
-        normalizedPoints.push([points[i+1][0],points[i+1][1],points[i+1][2]])
-        normalizedPoints.push([points[i+1][0],points[i+1][1],points[i+1][2]+height])
+export function loadAsGLTF(obj){
+    let gltf;
+    for (let objectName in GLTFObjects) {
+        if (obj.type === objectName) {
+            for (let size in GLTFObjects[objectName]) {
+                if ((obj.properties.svg).indexOf(size) !== -1) {
+                    console.log(`found: ${size} for obj ${obj.type}`)
+                    return <Suspense fallback={null} >
+                                <group position={[-obj.posX/1000,obj.posZ/1000,obj.posY/1000]} rotation={[0,obj.theta,0]}>
+                                <GLTFObject path={GLTFObjects[objectName][size][selectedColor]} position={[-obj.width/1000/2,0,obj.depth/1000/2]}/>
+                                <axesHelper args={[5]}/>
+                                </group>
+                         </Suspense>
+                }
+            }
+            //let ref = GLTFobjects.objectName[]
+            break
+        }
     }
+    return gltf;
+
+}
+
+export function getGeometryFromNormalizedPoints(normalizedPoints) {
+    let vertices = [];
 
     for (let i = 0; i< normalizedPoints.length;i++) {
         let polygon = normalizedPoints[i]
@@ -113,9 +137,129 @@ export function loadCorner(points,height){
     const positionNumComponents = 3;
     geometry.setAttribute(
         'position',
-        new BufferAttribute(new Float32Array(positions), positionNumComponents));
-    
+        new BufferAttribute(new Float32Array(positions), positionNumComponents))
+    return geometry
+}
+
+export function addHeight(point,height) {
+    return [point[0],point[1],point[2]+height]
+}
+
+export function loadCorner(points,height){
+    let normalizedPoints = []
+
+    for (let i = 0;i < points.length-1; i++) {
+        // draw triangle (bottom)
+        normalizedPoints.push(points[0])
+        normalizedPoints.push(points[i])
+        normalizedPoints.push(points[i+1])
+
+        // draw triangle (top)
+        normalizedPoints.push(addHeight(points[0],height))
+        normalizedPoints.push(addHeight(points[i],height))
+        normalizedPoints.push(addHeight(points[i+1],height))
+
+        // draw side triangle (bottom)
+        normalizedPoints.push(points[i])
+        normalizedPoints.push(addHeight(points[i],height))
+        normalizedPoints.push(points[i+1])
+
+        // draw side triangle (top)
+        normalizedPoints.push(addHeight(points[i],height))
+        normalizedPoints.push(points[i+1])
+        normalizedPoints.push(addHeight(points[i+1],height))
+    }
+
+    let geometry = getGeometryFromNormalizedPoints(normalizedPoints)
+
     return <mesh geometry={geometry}><meshBasicMaterial attach="material" side={DoubleSide} color={wallcolor}/></mesh>
+}
+
+export function divideFloors(points) {
+    let cornersByFloor = []
+    let floorHeight = 0;
+    let currentFloor = [];
+
+    for(let point of points) {
+        if(point[2] == floorHeight) {
+            currentFloor.push(point);
+            if(point == points[points.length-1]) {
+                cornersByFloor.push(currentFloor);
+            }
+            continue;
+        }
+
+        cornersByFloor.push(currentFloor);
+        currentFloor = [point]
+        floorHeight = point[2];
+    }
+    return cornersByFloor
+}
+
+export function getOptimalPoint(floor) {
+    let totalX = 0;
+    let totalY = 0;
+
+    for(let point of floor) {
+        totalX += point[0];
+        totalY += point[1];
+    }
+
+    const averageX = totalX/floor.length;
+    const averageY = totalY/floor.length;
+    let distance = Math.abs(averageX - floor[0][0]) + Math.abs(averageY - floor[0][1]);
+    let optimalPoint = 0;
+
+    for(let i = 1; i < floor.length; i++) {
+        let tempDistance = Math.abs(averageX - floor[i][0]) + Math.abs(averageY - floor[i][1]);
+        if(tempDistance < distance) {
+            distance = tempDistance;
+            optimalPoint = i;
+        }
+    }
+
+    return optimalPoint
+}
+
+export function loadFloors(points, height) {
+    let cornersByFloor = divideFloors(points);
+
+    let optimalPoint;
+    let normalizedPoints = [];
+
+    for(let floor of cornersByFloor) {
+        optimalPoint = getOptimalPoint(floor);
+        
+        for(let i = 0; i < floor.length; i++) {
+            let nextCorner = i+1
+            if(i == floor.length-1) {
+                nextCorner = 0;
+            }
+
+            // draw triangle (top) (floor)
+            normalizedPoints.push(floor[optimalPoint]);
+            normalizedPoints.push(floor[i]);
+            normalizedPoints.push(floor[nextCorner]);
+
+            // draw triangle (bottom) (floor)
+            normalizedPoints.push(addHeight(floor[optimalPoint],-height))
+            normalizedPoints.push(addHeight(floor[i],-height))
+            normalizedPoints.push(addHeight(floor[nextCorner],-height))
+
+            // draw triangle (top) (roof)
+            normalizedPoints.push(addHeight(floor[optimalPoint],3000));
+            normalizedPoints.push(addHeight(floor[i],3000));
+            normalizedPoints.push(addHeight(floor[nextCorner],3000));
+
+            // draw triangle (bottom) (roof)
+            normalizedPoints.push(addHeight(floor[optimalPoint],-height+3000))
+            normalizedPoints.push(addHeight(floor[i],-height+3000))
+            normalizedPoints.push(addHeight(floor[nextCorner],-height+3000))
+        }
+    }
+
+    let geometry = getGeometryFromNormalizedPoints(normalizedPoints);
+    return <mesh geometry={geometry}><meshBasicMaterial attach="material" side={DoubleSide} color={"#333333"}/></mesh>
 }
 
 export function LoadParcel(points) {

@@ -6,13 +6,17 @@ import {Canvas, extend, useThree, useLoader} from '@react-three/fiber';
 import {OrbitControls} from'three/examples/jsm/controls/OrbitControls';
 import {getJsonByProjectId, loadObjectsFromJson} from './components/ObjectLoader';
 import AddressForm from './components/AddressForm';
-import {BathroomModel_Big } from './Model';
+import {GLTFObject } from './components/GLTFModelLoader';
 import CameraControls from'./components/CamerControls';
 import CameraButtons  from './components/CameraButtons';
-// svgs
-
 import * as THREE from 'three';
+import { OrthographicCamera, PerspectiveCamera } from 'three';
+import { Router, Routes, Route} from "react-router-dom";
+import { createBrowserHistory } from "history";
+
 // import * as THREE from 'three';
+
+const history = createBrowserHistory();
 
 extend({OrbitControls});
 const Orbit = () => {
@@ -21,6 +25,7 @@ const Orbit = () => {
     <orbitControls attach='orbitControls' args={[camera, gl.domElement]}/>
   )
 }
+
 
 //Cursor 
 const cursor = {
@@ -55,9 +60,10 @@ const cursor = {
 
 // resizeCanvasToDisplaySize();
 
-const Building = (prop) => {
+
+const Building = (props) => {
   const [projectMesh,setProjectMesh] = useState([])
-  const [projectId,setProjectId] = useState(prop.projectId)
+  const [projectId,_] = useState(props.projectId);
 
   const fetchProject = async function() {
     let objects = await loadObjectsFromJson(projectId)
@@ -87,45 +93,34 @@ const CameraHelper = () => {
     </group>
 }
 
-// function App() {
-
-//   return (
-//   <div className='App'>
-//       <AddressForm />
-//   </div>
-
-//   );
-// }
-
 function App() {
+
+
+  let [projectId, setProjectId] = useState("");
+
   return (
-  <div className='App'>
-    <CameraButtons/>
-      <Canvas camera={{position:[0,0,-10], fov:75}}>
-        {/* <CameraControls/> */}
-        <CameraHelper/>
-        
-        <ambientLight intensity={1}/>
-        <Orbit/>
-        <axesHelper args={[5]}/>
-        <Suspense fallback={null}>
-          <BathroomModel_Big path='/Models/Big_bathroom.gltf'/>
-        </Suspense>
-      </Canvas>
-  </div>
-  )
-
-//   return (
-//   <div className='App'>
-//     {/* <AddressForm /> */}
-//     <Canvas>
-//       <Orbit/>
-//       <Building projectId={13}/>
-//     </Canvas>
-//   </div>
-
-// )};
-  }
+    <>
+      <Router location={history.location} history={history}>
+        <div className='App'>
+        <Routes>
+          <Route exact path="/" element={<AddressForm setProjectId={setProjectId} history={history} />}/>
+          <Route path="/visualisation/:projectId"
+                element={
+                  <Canvas camera={{position:[0,0,-10], fov:75}}>
+                    <CameraHelper/>
+                    <ambientLight intensity={1}/>
+                    <Orbit/>
+                    <axesHelper args={[5]}/>
+                    <Building projectId={projectId} />
+                  </Canvas>
+                } />
+                
+        </Routes>
+        </div>
+      </Router>
+      <CameraButtons/>
+      </>
+)};
 
 
 export default App;
