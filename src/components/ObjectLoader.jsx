@@ -108,7 +108,7 @@ export function loadAsGLTF(obj){
                     console.log(`found: ${size} for obj ${obj.type}`)
                     return <Suspense fallback={null} >
                                 <group position={[-obj.posX/1000,obj.posZ/1000,obj.posY/1000]} rotation={[0,obj.theta,0]}>
-                                <GLTFObject path={GLTFObjects[objectName][size][selectedColor]} position={[-obj.width/1000/2,0,obj.depth/1000/2]}/>
+                                <GLTFObject path={process.env.PUBLIC_URL + GLTFObjects[objectName][size][selectedColor]} position={[-obj.width/1000/2,0,obj.depth/1000/2]}/>
                                 {/* <axesHelper args={[5]}/> */}
                                 </group>
                          </Suspense>

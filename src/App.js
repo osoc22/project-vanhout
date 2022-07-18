@@ -8,7 +8,7 @@ import {getJsonByProjectId, loadObjectsFromJson} from './components/ObjectLoader
 import AddressForm from './components/AddressForm';
 import CameraControls from'./components/CamerControls';
 import { AmbientLight, OrthographicCamera, PerspectiveCamera } from 'three';
-import { Router, Routes, Route} from "react-router-dom";
+import { Router, Routes, Route, HashRouter, Navigate} from "react-router-dom";
 import { createBrowserHistory } from "history";
 // import * as THREE from 'three';
 
@@ -54,13 +54,17 @@ const CameraHelper = () => {
 
 function App() {
   let [projectId, setProjectId] = useState("");
+  console.log(`URL: ${process.env.PUBLIC_URL}`);
+
 
   return (
-      <Router location={history.location} history={history}>
+      <HashRouter  location={history.location} history={history}>
         <div className='App'>
         <Routes>
-          <Route exact path="/" element={<AddressForm setProjectId={setProjectId} history={history} />}/>
-          <Route path="/visualisation/:projectId"
+          <Route path="/" element={projectId.length != 0 ? <Navigate to={`/visualisation/${projectId}`} /> : <AddressForm setProjectId={setProjectId} history={history} /> }>
+
+          </Route>
+          <Route path={`/visualisation/:projectId`}
                 element={
                   <Canvas>
                     <Orbit/>
@@ -70,7 +74,7 @@ function App() {
                 } />
         </Routes>
         </div>
-      </Router>
+      </HashRouter>
 )};
 
 
