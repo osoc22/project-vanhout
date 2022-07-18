@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/project-vanhout/static/css/main.a78c3c68.css",
-    "main.js": "/project-vanhout/static/js/main.02f90fff.js",
+    "main.js": "/project-vanhout/static/js/main.851c98a5.js",
     "static/js/787.e7e5bcb2.chunk.js": "/project-vanhout/static/js/787.e7e5bcb2.chunk.js",
     "index.html": "/project-vanhout/index.html",
     "main.a78c3c68.css.map": "/project-vanhout/static/css/main.a78c3c68.css.map",
-    "main.02f90fff.js.map": "/project-vanhout/static/js/main.02f90fff.js.map",
+    "main.851c98a5.js.map": "/project-vanhout/static/js/main.851c98a5.js.map",
     "787.e7e5bcb2.chunk.js.map": "/project-vanhout/static/js/787.e7e5bcb2.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.a78c3c68.css",
-    "static/js/main.02f90fff.js"
+    "static/js/main.851c98a5.js"
   ]
 }
