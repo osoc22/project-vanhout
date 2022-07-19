@@ -1,4 +1,5 @@
-import React from 'react'
+import React, {useRef} from 'react'
+import {useThree, useFrame} from '@react-three/fiber'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import arrowDown from '../arrows/arrow-down-square-fill.svg'
 import left from '../arrows/arrow-left-square-fill.svg'
@@ -16,11 +17,20 @@ import right from '../arrows/arrow-right-square-fill.svg'
       
 //       </group>
 //   }
-const CameraButtons = ({}) => {
+
+const xRotation = (cam, rotNum) => {
+    const rotationNum = rotNum
+    
+    const x = (rotationNum * Math.PI) / 180
+    cam.rotation.set(0,x, 0)
+    console.log(cam.rotation)}
+
+const CameraButtons = (props) => {
+    const controls = useRef();
     return(
     <>
     {/* <CameraHelper position={[]}/> */}
-        <button type="button" id="top">
+        <button type="button" id="top" onClick={() => xRotation(props.camera, props.rotNum)}>
         <img src={up} alt="up" />  
         </button>
 

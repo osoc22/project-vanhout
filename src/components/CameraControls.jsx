@@ -25,14 +25,14 @@ import {OrbitControls} from'three/examples/jsm/controls/OrbitControls';
 //     )
 // }
 extend({OrbitControls});
-const Orbit = () => {
+const Orbit = (props) => {
   const {camera, gl} = useThree();
-
+    props.setCamera(camera)
   camera.position.set( 0, 0, 1 );
 
   const controls = useRef();
 
-  console.log(controls.current)
+
 
   useFrame((e) => controls.current.update());
 

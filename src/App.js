@@ -78,13 +78,18 @@ const Building = (props) => {
 }
 
 const CameraHelper = (props) => {
-  let  camera = new THREE.PerspectiveCamera(75, 2, 1, 5);
-  const rotationNum = props.rotationNum
+ const {camera, gl} = useThree();
+ const rotationNum = props.rotationNum
   const x = (rotationNum * Math.PI) / 180
+  // useFrame(() => console.log(camera.position) )
   
   camera.rotation.set(x, 0, 0);
   console.log(camera.rotation);
-  return <group position={props.position}>
+  // return <group position={props.position}>
+  //   <cameraHelper args={[camera]} />
+    
+  //   </group>
+    return <group>
     <cameraHelper args={[camera]} />
     
     </group>
@@ -121,18 +126,22 @@ function App() {
 
 
   let [projectId, setProjectId] = useState("");
+  let [camera, setCamera] = useState('');
+  useEffect(() => {
+    console.log(camera);
+  }, [camera])
 
   return (
     <>
-    <CameraButtons/>
+    <CameraButtons setCamera={setCamera} camera={camera} rotNum={45}/>
     <Canvas camera={{position:[0,0,1], fov:75 }}>
-      {/* <CameraHelper position={[0,0,1]} rotationNum={180}/> */}
+      <CameraHelper rotationNum={180}/>
       <ambientLight intensity={1}/>
-      <Orbit/>
+      <Orbit setCamera={setCamera}/>
       <axesHelper args={[5]}/>
       <Building projectId={projectId}  />
     </Canvas>                
-    <CameraButtons/>
+    
   </>
 
 )};
