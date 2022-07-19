@@ -15,96 +15,65 @@ Canvas{
   
 }
 
-div#left{
+button{
+  background-color: black;
+  border: none;
+  width: 3rem;
+}
+
+button#left{
   position: absolute;
   z-index: 1;
   top: 10vh;
   right: 8vw;
-  color:white;
-  font-size: 20pt;
-  height:5vh;
-  width: 1.8%;
-
 }
-div#left-top{
+button#left-top{
   position: absolute;
   z-index: 1;
   top: 5vh;
   right: 7.5vw;
-  color:white;
-  font-size: 20pt;
-  height:5vh;
-  width: 1.8%;
-
 }
 
-div#right{
+button#right{
   position: absolute;
   z-index: 1;
   top: 10vh;
   right: 2vw;
-  color:white;
-  font-size: 20pt;
-  height:5vh;
-  width: 1.8%;
 
 }
-div#right-top{
+button#right-top{
   position: absolute;
   z-index: 1;
   top: 5vh;
   right: 2.5vw;
-  color:white;
-  font-size: 20pt;
-  height:5vh;
-  width: 1.8%;
-
 }
 
-div#top{
+button#top{
   position: absolute;
   z-index: 1;
   top: 4vh;
   right: 5vw;
-  color:white;
-  font-size: 20pt;
-  height:5vh;
-  width: 1.8%;
 }
-div#left-back{
+button#left-back{
   position: absolute;
   z-index: 1;
   top: 15vh;
   right: 7.5vw;
-  color:white;
-  font-size: 10pt;
-  height:5vh;
-  width: 1.8%;
-
 }
-div#right-back{
+button#right-back{
   position: absolute;
   z-index: 1;
   top: 15vh;
   right: 2.5vw;
-  color:white;
-  font-size: 20pt;
-  height:5vh;
-  width: 1.8%;
-
-
 }
 
-div#back{
+button#back{
   position: absolute;
   z-index: 1;
   top: 16vh;
   right: 5vw;
-  color:white;
-  font-size: 20pt;
-  height:5vh;
-  width: 1.8%;
 }
+
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
     animation: App-logo-spin infinite 20s linear;

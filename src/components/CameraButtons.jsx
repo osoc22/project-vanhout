@@ -20,38 +20,38 @@ const CameraButtons = ({}) => {
     return(
     <>
     {/* <CameraHelper position={[]}/> */}
-        <div id="top">
+        <button type="button" id="top">
         <img src={up} alt="up" />  
-        </div>
+        </button>
 
-        {/* <div id="left-top">
+        {/* <button type="button" id="left-top">
         <img src={arrowDown} alt="arrowdown" />  
-        </div> */}
+        </button type="button"> */}
 
-        <div id="left">
+        <button type="button" id="left">
         <img src={left} alt="left" />  
-        </div>
+        </button>
 
-        {/* <div id="left-back">
+        {/* <button type="button" id="left-back">
         <img src={leftDown} alt="leftdown" />  
-        </div> */}
+        </button type="button"> */}
 
-        {/* <div id="right-top">
+        {/* <button type="button" id="right-top">
         <img src={arrowDown} alt="arrowdown" />  
-        </div> */}
+        </button type="button"> */}
 
-        <div id="right">
+        <button type="button" id="right">
 
         <img src={right} alt="right" />  
-        </div> 
+        </button> 
 
-        {/* <div id="right-back">
+        {/* <button type="button" id="right-back">
             <img src={rightDown} alt="rightDown" />    
-        </div> */}
+        </button type="button"> */}
 
-        <div id="back">
+        <button type="button" id="back">
             <img src={arrowDown} alt="arrowdown" />
-        </div>
+        </button>
     </>
     )
 }
