@@ -19,18 +19,91 @@ div#left{
   position: absolute;
   z-index: 1;
   top: 10vh;
-  right: 5vw;
+  right: 8vw;
   color:white;
   font-size: 20pt;
+  height:5vh;
+  width: 1.8%;
+
+}
+div#left-top{
+  position: absolute;
+  z-index: 1;
+  top: 5vh;
+  right: 7.5vw;
+  color:white;
+  font-size: 20pt;
+  height:5vh;
+  width: 1.8%;
+
 }
 
 div#right{
   position: absolute;
   z-index: 1;
   top: 10vh;
+  right: 2vw;
+  color:white;
+  font-size: 20pt;
+  height:5vh;
+  width: 1.8%;
+
+}
+div#right-top{
+  position: absolute;
+  z-index: 1;
+  top: 5vh;
   right: 2.5vw;
   color:white;
   font-size: 20pt;
+  height:5vh;
+  width: 1.8%;
+
+}
+
+div#top{
+  position: absolute;
+  z-index: 1;
+  top: 4vh;
+  right: 5vw;
+  color:white;
+  font-size: 20pt;
+  height:5vh;
+  width: 1.8%;
+}
+div#left-back{
+  position: absolute;
+  z-index: 1;
+  top: 15vh;
+  right: 7.5vw;
+  color:white;
+  font-size: 10pt;
+  height:5vh;
+  width: 1.8%;
+
+}
+div#right-back{
+  position: absolute;
+  z-index: 1;
+  top: 15vh;
+  right: 2.5vw;
+  color:white;
+  font-size: 20pt;
+  height:5vh;
+  width: 1.8%;
+
+
+}
+
+div#back{
+  position: absolute;
+  z-index: 1;
+  top: 16vh;
+  right: 5vw;
+  color:white;
+  font-size: 20pt;
+  height:5vh;
+  width: 1.8%;
 }
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {

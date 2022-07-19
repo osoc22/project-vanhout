@@ -1,8 +1,8 @@
 // import logo from './logo.svg';
 import './App.css';
 import './react-autosuggest.css';
-import React, { Component,useEffect, useState,Suspense} from 'react';
-import {Canvas, extend, useThree, useLoader} from '@react-three/fiber';
+import React, { Component,useEffect, useState,Suspense, useRef} from 'react';
+import {Canvas, extend, useThree, useLoader, useFrame} from '@react-three/fiber';
 import {OrbitControls} from'three/examples/jsm/controls/OrbitControls';
 import {getJsonByProjectId, loadObjectsFromJson} from './components/ObjectLoader';
 import AddressForm from './components/AddressForm';
@@ -21,8 +21,23 @@ const history = createBrowserHistory();
 extend({OrbitControls});
 const Orbit = () => {
   const {camera, gl} = useThree();
+
+  camera.position.set( 0, 0, 1 );
+  const controls = useRef();
+  console.log(controls)
+  // const controls = new THREE.OrbitControls()
+  useFrame((e) => controls.current.update());
+
   return(
-    <orbitControls attach='orbitControls' args={[camera, gl.domElement]}/>
+    <orbitControls 
+    attach='orbitControls' 
+    ref={controls} 
+    args={[camera, gl.domElement]}
+    maxAzimuthAngle={Math.PI}
+    maxPolarAngle={Math.PI/4}
+    minAzimuthAngle={-Math.PI}
+    minPolarAngle={0}
+    />
   )
 }
 
@@ -84,15 +99,46 @@ const Building = (props) => {
 
 }
 
-const CameraHelper = () => {
-  const  camera = new THREE.PerspectiveCamera(75, 2, 1, 5);
-  console.log(camera)
-  return <group position={[0,3,-20]}>
+const CameraHelper = (props) => {
+  let  camera = new THREE.PerspectiveCamera(75, 2, 1, 5);
+  const rotationNum = props.rotationNum
+  const x = (rotationNum * Math.PI) / 180
+  
+  camera.rotation.set(x, 0, 0);
+  console.log(camera.rotation);
+  return <group position={props.position}>
     <cameraHelper args={[camera]} />
     
     </group>
 }
 
+// function App() {
+
+
+//   let [projectId, setProjectId] = useState("");
+
+//   return (
+//       <Router location={history.location} history={history}>
+//         <div className='App'>
+//         <Routes>
+//           <Route exact path="/" element={<AddressForm setProjectId={setProjectId} history={history} />}/>
+//           <Route path="/visualisation/:projectId"
+//                 element={
+//                   <Canvas camera={{position:[0,0,-10], fov:75}}>
+//                     <CameraHelper/>
+//                     <ambientLight intensity={1}/>
+//                     <Orbit/>
+//                     <axesHelper args={[5]}/>
+//                     <Building projectId={projectId} />
+//                   </Canvas>
+//                 } />
+//                 <CameraButtons/>
+//         </Routes>
+//         </div>
+//       </Router>
+// )};
+
+// test APP
 function App() {
 
 
@@ -100,27 +146,17 @@ function App() {
 
   return (
     <>
-      <Router location={history.location} history={history}>
-        <div className='App'>
-        <Routes>
-          <Route exact path="/" element={<AddressForm setProjectId={setProjectId} history={history} />}/>
-          <Route path="/visualisation/:projectId"
-                element={
-                  <Canvas camera={{position:[0,0,-10], fov:75}}>
-                    <CameraHelper/>
-                    <ambientLight intensity={1}/>
-                    <Orbit/>
-                    <axesHelper args={[5]}/>
-                    <Building projectId={projectId} />
-                  </Canvas>
-                } />
-                
-        </Routes>
-        </div>
-      </Router>
-      <CameraButtons/>
-      </>
-)};
+    <CameraButtons/>
+    <Canvas camera={{position:[0,0,1], fov:75 }}>
+      {/* <CameraHelper position={[0,0,1]} rotationNum={180}/> */}
+      <ambientLight intensity={1}/>
+      <Orbit/>
+      <axesHelper args={[5]}/>
+      <Building projectId={projectId}  />
+    </Canvas>                
+    <CameraButtons/>
+  </>
 
+)};
 
 export default App;
