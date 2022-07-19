@@ -3,11 +3,10 @@ import './App.css';
 import './react-autosuggest.css';
 import React, { Component,useEffect, useState,Suspense, useRef} from 'react';
 import {Canvas, extend, useThree, useLoader, useFrame} from '@react-three/fiber';
-import {OrbitControls} from'three/examples/jsm/controls/OrbitControls';
 import {getJsonByProjectId, loadObjectsFromJson} from './components/ObjectLoader';
 import AddressForm from './components/AddressForm';
 import {GLTFObject } from './components/GLTFModelLoader';
-import CameraControls from'./components/CamerControls';
+import{CameraControls, Orbit} from'./components/CameraControls';
 import CameraButtons  from './components/CameraButtons';
 import * as THREE from 'three';
 import { OrthographicCamera, PerspectiveCamera } from 'three';
@@ -18,28 +17,7 @@ import { createBrowserHistory } from "history";
 
 const history = createBrowserHistory();
 
-extend({OrbitControls});
-const Orbit = () => {
-  const {camera, gl} = useThree();
 
-  camera.position.set( 0, 0, 1 );
-  const controls = useRef();
-  console.log(controls)
-  // const controls = new THREE.OrbitControls()
-  useFrame((e) => controls.current.update());
-
-  return(
-    <orbitControls 
-    attach='orbitControls' 
-    ref={controls} 
-    args={[camera, gl.domElement]}
-    maxAzimuthAngle={Math.PI}
-    maxPolarAngle={Math.PI/4}
-    minAzimuthAngle={-Math.PI}
-    minPolarAngle={0}
-    />
-  )
-}
 
 
 //Cursor 
