@@ -10,6 +10,7 @@ import CameraControls from'./components/CamerControls';
 import { AmbientLight, OrthographicCamera, PerspectiveCamera } from 'three';
 import { Router, Routes, Route, HashRouter, Navigate} from "react-router-dom";
 import { createBrowserHistory } from "history";
+import { CreatePdf } from './components/PDFGen';
 // import * as THREE from 'three';
 
 const history = createBrowserHistory();
@@ -22,6 +23,11 @@ const Orbit = () => {
   )
 }
 
+const GlobalRenderSetter = (props) => {
+  const {camera, gl} = useThree();
+  props.setRenderer(gl)
+}
+
 const Building = (props) => {
   const [projectMesh,setProjectMesh] = useState([])
   const [projectId,_] = useState(props.projectId);
@@ -30,6 +36,7 @@ const Building = (props) => {
     let objects = await loadObjectsFromJson(projectId)
     setProjectMesh(objects)
   }
+
   useEffect (() => {
     fetchProject()
   }, [projectId])
@@ -40,9 +47,7 @@ const Building = (props) => {
   //   }, 1000);
   //   return () => clearInterval(interval);
   // }, []);
-
   return projectMesh
-
 }
 
 const CameraHelper = () => {
@@ -54,8 +59,9 @@ const CameraHelper = () => {
 
 function App() {
   let [projectId, setProjectId] = useState("");
-  console.log(`URL: ${process.env.PUBLIC_URL}`);
+  //console.log(`URL: ${process.env.PUBLIC_URL}`);
 
+  let [renderer, setRenderer] = useState();
 
   return (
       <HashRouter  location={history.location} history={history}>
@@ -66,13 +72,15 @@ function App() {
           </Route>
           <Route path={`/visualisation/:projectId`}
                 element={
-                  <Canvas>
+                  <Canvas  gl={{ preserveDrawingBuffer: true ,antialias:true}}>
                     <Orbit/>
                     <ambientLight intensity={0.8} decay={10} color={"#FFFFFF"}/>
                     <Building projectId={projectId} />
+                    <GlobalRenderSetter setRenderer={setRenderer}/>
                   </Canvas>
                 } />
         </Routes>
+        <button onClick={() => CreatePdf(renderer)}>??</button>
         </div>
       </HashRouter>
 )};

@@ -1,6 +1,5 @@
 import React, { Component,useEffect, useState, useMemo,Suspense} from 'react';
 import { BufferGeometry, BufferAttribute, DoubleSide,TextureLoader} from 'three';
-import { useLoader } from "@react-three/fiber";
 import { GLTFObject } from './GLTFModelLoader';
 
 let wallcolor = "#AAAAAA";
@@ -59,7 +58,6 @@ export async function loadObjectsFromJson(projectId) {
     let corners = [];
     let corner;
 
-    //object.push(<mesh><Plane></Plane></mesh>)
     objects.push(LoadParcel(latestModelData.parcel));
 
     for (let i=0;i<latestModelData.elements.length;i++) {
