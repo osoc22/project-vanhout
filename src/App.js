@@ -10,9 +10,11 @@ import CameraControls from'./components/CamerControls';
 import { AmbientLight, OrthographicCamera, PerspectiveCamera } from 'three';
 import { Router, Routes, Route} from "react-router-dom";
 import { createBrowserHistory } from "history";
+import { CreatePdf } from './components/PDFGen';
 // import * as THREE from 'three';
 
 const history = createBrowserHistory();
+let globalRenderer;
 
 extend({OrbitControls});
 const Orbit = () => {
@@ -20,6 +22,11 @@ const Orbit = () => {
   return(
     <orbitControls attach='orbitControls' args={[camera, gl.domElement]}/>
   )
+}
+
+const GlobalRenderSetter = () => {
+  const {camera, gl} = useThree();
+  globalRenderer = gl;
 }
 
 const Building = (props) => {
@@ -40,9 +47,7 @@ const Building = (props) => {
   //   }, 1000);
   //   return () => clearInterval(interval);
   // }, []);
-
   return projectMesh
-
 }
 
 const CameraHelper = () => {
@@ -62,13 +67,15 @@ function App() {
           <Route exact path="/" element={<AddressForm setProjectId={setProjectId} history={history} />}/>
           <Route path="/visualisation/:projectId"
                 element={
-                  <Canvas>
+                  <Canvas  gl={{ preserveDrawingBuffer: true ,antialias:true}}>
                     <Orbit/>
                     <ambientLight intensity={0.8} decay={10} color={"#FFFFFF"}/>
                     <Building projectId={projectId} />
+                    <GlobalRenderSetter/>
                   </Canvas>
                 } />
         </Routes>
+        <button onClick={() => CreatePdf(globalRenderer)}>??</button>
         </div>
       </Router>
 )};

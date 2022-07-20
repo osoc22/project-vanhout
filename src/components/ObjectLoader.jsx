@@ -1,6 +1,5 @@
 import React, { Component,useEffect, useState, useMemo,Suspense} from 'react';
 import { BufferGeometry, BufferAttribute, DoubleSide,TextureLoader} from 'three';
-import { useLoader } from "@react-three/fiber";
 import { GLTFObject } from './GLTFModelLoader';
 
 let wallcolor = "#AAAAAA";
