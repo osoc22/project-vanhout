@@ -40,28 +40,44 @@ export async function getJsonByAddressParameters() {
 
 }
 
-export async function loadObjectsFromJson(projectId) {
+export async function getModels(projectId) {
+    const modelData = await getJsonByProjectId(projectId)
+    console.log(modelData)
+    return modelData
+}
+
+export function getRandomLayout(modelData) {
+    let randomModel = Math.round(Math.random()*(modelData.length-1));
+    const latestModelData = modelData[modelData.length-1]//modelData[randomModel]
+    console.log(latestModelData)
+    console.log(randomModel)
+    return latestModelData
+}
+
+export async function loadObjectsFromJson(modelData, floor = 0) {
     // let possibleAddresses = await getPossibleAddresses("Kortrij")
     // for (let addr of possibleAddresses) {
     //     console.log(addr)
     // }
-
-    const modelData = await getJsonByProjectId(projectId)
-    let randomModel = Math.round(Math.random()*(modelData.length-1));
-    const latestModelData = modelData[modelData.length-1]//modelData[randomModel]
-    console.log(modelData)
-    console.log(randomModel)
     
     let objects = [];
     let object;
     let obj;
     let corners = [];
     let corner;
+    let latestModelData = getRandomLayout(modelData);
 
     objects.push(LoadParcel(latestModelData.parcel));
 
     for (let i=0;i<latestModelData.elements.length;i++) {
         obj = latestModelData.elements[i]
+        if(floor != -1) {
+            if(obj.posZ >= floor*3000) {
+                continue
+            }
+        }
+        // console.log(latestModelData.elements[i]);
+        
         if (obj.type == "corner") {
             corner = loadCorner(obj.points,obj.height)
             objects.push(corner)
@@ -178,7 +194,7 @@ export function loadCorner(points,height){
 
 export function divideFloors(points) {
     let cornersByFloor = []
-    let floorHeight = 0;
+    let floorHeight = points[0][2];
     let currentFloor = [];
 
     for(let point of points) {
@@ -229,6 +245,8 @@ export function loadFloors(points, height) {
     let normalizedPoints = [];
 
     for(let floor of cornersByFloor) {
+        console.log(floor)
+        console.log(points)
         optimalPoint = getOptimalPoint(floor);
         
         for(let i = 0; i < floor.length; i++) {
@@ -242,20 +260,27 @@ export function loadFloors(points, height) {
             normalizedPoints.push(floor[i]);
             normalizedPoints.push(floor[nextCorner]);
 
-            // draw triangle (bottom) (floor)
-            normalizedPoints.push(addHeight(floor[optimalPoint],-height))
-            normalizedPoints.push(addHeight(floor[i],-height))
-            normalizedPoints.push(addHeight(floor[nextCorner],-height))
+            if(floor !== cornersByFloor[0]) {
+                // draw triangle (bottom) (floor)
+                normalizedPoints.push(addHeight(floor[optimalPoint],-height))
+                normalizedPoints.push(addHeight(floor[i],-height))
+                normalizedPoints.push(addHeight(floor[nextCorner],-height))
+            }
 
-            // draw triangle (top) (roof)
-            normalizedPoints.push(addHeight(floor[optimalPoint],3000));
-            normalizedPoints.push(addHeight(floor[i],3000));
-            normalizedPoints.push(addHeight(floor[nextCorner],3000));
+            console.log(floor)
+            console.log(cornersByFloor)
+            
+            if(floor === cornersByFloor[cornersByFloor.length-1] && cornersByFloor.length > 1) {
+                // draw triangle (top) (roof)
+                normalizedPoints.push(addHeight(floor[optimalPoint],3000));
+                normalizedPoints.push(addHeight(floor[i],3000));
+                normalizedPoints.push(addHeight(floor[nextCorner],3000));
 
-            // draw triangle (bottom) (roof)
-            normalizedPoints.push(addHeight(floor[optimalPoint],-height+3000))
-            normalizedPoints.push(addHeight(floor[i],-height+3000))
-            normalizedPoints.push(addHeight(floor[nextCorner],-height+3000))
+                // draw triangle (bottom) (roof)
+                normalizedPoints.push(addHeight(floor[optimalPoint],-height+3000))
+                normalizedPoints.push(addHeight(floor[i],-height+3000))
+                normalizedPoints.push(addHeight(floor[nextCorner],-height+3000))
+            }
         }
     }
 

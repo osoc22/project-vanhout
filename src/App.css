@@ -12,7 +12,6 @@ Canvas{
   background-color:black;
   height:100vh;
   width:100vw;
-  
 }
 
 button{
@@ -73,6 +72,9 @@ button#back{
   top: 16vh;
   right: 5vw;
 }
+/* .sliderValue {
+
+} */
 
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {

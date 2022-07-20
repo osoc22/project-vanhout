@@ -3,12 +3,12 @@ import './App.css';
 import './react-autosuggest.css';
 import React, { Component,useEffect, useState,Suspense, useRef} from 'react';
 import {Canvas, extend, useThree, useLoader, useFrame} from '@react-three/fiber';
-import {getJsonByProjectId, loadObjectsFromJson} from './components/ObjectLoader';
+import {getModels, loadObjectsFromJson} from './components/ObjectLoader';
 import AddressForm from './components/AddressForm';
 import{CameraControls, Orbit} from'./components/CameraControls';
 import CameraButtons  from './components/CameraButtons';
-import { AmbientLight, HemisphereLight, OrthographicCamera, PerspectiveCamera } from 'three';
 import { Router, Routes, Route, HashRouter, Navigate} from "react-router-dom";
+import Slider from'./components/Slider';
 import { createBrowserHistory } from "history";
 import { CreatePdf } from './components/PDFGen';
 
@@ -21,34 +21,6 @@ const cursor = {
   x:0,
   y:0
 }
-// window.addEventListener('mousemove', (e) => {
-//   cursor.x = e.clientX / sizes.width - 0.5
-//   cursor.y = -(e.clientY / sizes.height - 0.5)
-// })
-
-
-// Camera
-// const  camera = new THREE.PerspectiveCamera(70, 2, 1, 1000);
-// camera.position.z = 400;
-
-// function resizeCanvasToDisplaySize() {
-//   const canvas = renderer.domElement;
-//   const width = canvas.clientWidth;
-//   const height = canvas.clientHeight;
-//   if (canvas.width !== width ||canvas.height !== height) {
-//     // you must pass false here or three.js sadly fights the browser
-//     renderer.setSize(width, height, false);
-//     camera.aspect = width / height;
-//     camera.updateProjectionMatrix();
-//     console.log(width)
-
-//     // set render target sizes here
-//   }
-// }
-
-
-// resizeCanvasToDisplaySize();
-
 
 const GlobalRenderSetter = (props) => {
   const {camera, gl} = useThree();
@@ -56,17 +28,34 @@ const GlobalRenderSetter = (props) => {
 }
 
 const Building = (props) => {
+  const [projectJSON,setProjectJSON] = useState([])
   const [projectMesh,setProjectMesh] = useState([])
-  const [projectId,_] = useState(props.projectId);
+  const [projectId,_p] = useState(props.projectId);
+  const [floor,_f] = useState(parseInt(props.floor));
+  
+  const fetchModels = async function() {
+    let models = await getModels(projectId)
+    setProjectJSON(models)
+    console.log(models)
+  }
 
   const fetchProject = async function() {
-    let objects = await loadObjectsFromJson(projectId)
+    let objects = await loadObjectsFromJson(projectJSON, floor)
     setProjectMesh(objects)
   }
 
   useEffect (() => {
-    fetchProject()
+    fetchModels(projectId)
   }, [projectId])
+
+  useEffect (() => {
+    if(projectJSON.length) {
+      fetchProject()
+    }
+    console.log(floor);
+  }, [projectJSON, floor])
+
+  
 
   // useEffect(() => {
   //   const interval = setInterval(() => {
@@ -102,18 +91,22 @@ function App() {
   let [moveUp, setMoveUp] = useState(false);
   let [renderer, setRenderer] = useState();
   let [center,setCenter] = useState([0,0,0]);
+  let [sliderValue, setSliderValue] = useState(1);
   //console.log(`URL: ${process.env.PUBLIC_URL}`);
 
   useEffect(()=>{
     console.log("MOVE UP");
   },[moveUp]);
 
+  const sliderToApp = (data) => {
+    setSliderValue(data);
+  }
+
   return (
       <HashRouter  location={history.location} history={history}>
         <div className='App'>
         <Routes>
           <Route path="/" element={projectId.length != 0 ? <Navigate to={`/visualisation/${projectId}`} /> : <AddressForm setProjectId={setProjectId} history={history} /> }>
-
           </Route>
           <Route path={`/visualisation/:projectId`}
                 element={ <>
@@ -128,6 +121,10 @@ function App() {
                 } />
         </Routes>
         <button onClick={() => CreatePdf(renderer)}>??</button>
+        <div>
+          <p>{sliderValue}</p>
+          <Slider sliderToApp={sliderToApp}/>
+        </div>
         </div>
       </HashRouter>
 )};
