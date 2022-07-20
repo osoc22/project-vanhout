@@ -27,7 +27,7 @@ const Building = (props) => {
   const [projectJSON,setProjectJSON] = useState([])
   const [projectMesh,setProjectMesh] = useState([])
   const [projectId,_p] = useState(props.projectId);
-  const [floor,_f] = useState(props.floor);
+  const [floor,_f] = useState(parseInt(props.floor));
   
   const fetchModels = async function() {
     let models = await getModels(projectId)
@@ -48,7 +48,10 @@ const Building = (props) => {
     if(projectJSON.length) {
       fetchProject()
     }
+    console.log(floor);
   }, [projectJSON, floor])
+
+  
 
   // useEffect(() => {
   //   const interval = setInterval(() => {
@@ -68,13 +71,13 @@ const CameraHelper = () => {
     </group>
 }
 
-const sliderToApp = () => {
-
-}
-
 function App() {
   let [projectId, setProjectId] = useState("");
-  const [sliderValue, setSliderValue] = useState('');
+  let [sliderValue, setSliderValue] = useState(1);
+
+  const sliderToApp = (data) => {
+    setSliderValue(data);
+  }
 
   return (
       <Router location={history.location} history={history}>
@@ -86,11 +89,12 @@ function App() {
                     <Canvas>
                       <Orbit/>
                       <ambientLight intensity={0.8} decay={10} color={"#FFFFFF"}/>
-                      <Building projectId={projectId} floor={3} />
+                      <Building projectId={projectId} floor={sliderValue} />
                     </Canvas>
                   } />
           </Routes>
         <div>
+          <p>{sliderValue}</p>
           <Slider sliderToApp={sliderToApp}/>
         </div>
         </div>
