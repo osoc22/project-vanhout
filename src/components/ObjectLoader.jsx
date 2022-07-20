@@ -1,8 +1,8 @@
 import React, { Component,useEffect, useState, useMemo,Suspense} from 'react';
-import { BufferGeometry, BufferAttribute, MeshBasicMaterial,DoubleSide} from 'three';
+import { BufferGeometry, BufferAttribute, DoubleSide,TextureLoader} from 'three';
 import { GLTFObject } from './GLTFModelLoader';
 
-let wallcolor = "#777777";
+let wallcolor = "#AAAAAA";
 let floorThickness = 300;
 let GLTFObjects = {
     "bathroom":{"big":{"palleteRed":"/Models/Big_bathroom.gltf"},"small":{"palleteRed":"/Models/Small_bathroom.gltf"}},
@@ -58,7 +58,7 @@ export async function loadObjectsFromJson(projectId) {
     let corners = [];
     let corner;
 
-    //objects.push(LoadParcel(latestModelData.parcel));
+    objects.push(LoadParcel(latestModelData.parcel));
 
     for (let i=0;i<latestModelData.elements.length;i++) {
         obj = latestModelData.elements[i]
@@ -106,8 +106,8 @@ export function loadAsGLTF(obj){
                     console.log(`found: ${size} for obj ${obj.type}`)
                     return <Suspense fallback={null} >
                                 <group position={[-obj.posX/1000,obj.posZ/1000,obj.posY/1000]} rotation={[0,obj.theta,0]}>
-                                <GLTFObject path={GLTFObjects[objectName][size][selectedColor]} position={[-obj.width/1000/2,0,obj.depth/1000/2]}/>
-                                <axesHelper args={[5]}/>
+                                <GLTFObject path={process.env.PUBLIC_URL + GLTFObjects[objectName][size][selectedColor]} position={[-obj.width/1000/2,0,obj.depth/1000/2]}/>
+                                {/* <axesHelper args={[5]}/> */}
                                 </group>
                          </Suspense>
                 }
@@ -171,7 +171,8 @@ export function loadCorner(points,height){
     }
 
     let geometry = getGeometryFromNormalizedPoints(normalizedPoints)
-
+    //const texture = Texture("./Textures/texture.jpg");
+    // texture = useLoader(TextureLoader, "/Textures/texture.jpg")
     return <mesh geometry={geometry}><meshBasicMaterial attach="material" side={DoubleSide} color={wallcolor}/></mesh>
 }
 
@@ -263,23 +264,25 @@ export function loadFloors(points, height) {
 }
 
 export function LoadParcel(points) {
-    let vertices = []
-    for (let polygon of points) {
-        vertices.push([polygon[0]/1000,0,polygon[1]/1000])
-    }
-   
-    const positions = [];
-    for (const vertex of vertices) {
-        positions.push(...vertex);
+    let vectorizedPoints = []
+    for (let point of points) {
+        vectorizedPoints.push([point[0],point[1],0-1])
     }
 
-    const geometry = new BufferGeometry();
-    const positionNumComponents = 3;
-    geometry.setAttribute(
-        'position',
-        new BufferAttribute(new Float32Array(positions), positionNumComponents));
-    
-    return <mesh geometry={geometry}></mesh>
+    let optimalPoint = getOptimalPoint(vectorizedPoints);
+    let normalizedPoints = [];
+    for(let i = 0; i < vectorizedPoints.length; i++) {
+        let nextCorner = i+1
+        if(i == vectorizedPoints.length-1) {
+            nextCorner = 0;
+        }
+
+        normalizedPoints.push(vectorizedPoints[optimalPoint]);
+        normalizedPoints.push(vectorizedPoints[i]);
+        normalizedPoints.push(vectorizedPoints[nextCorner]);
+    }
+    let geometry = getGeometryFromNormalizedPoints(normalizedPoints);
+    return <mesh geometry={geometry}><meshBasicMaterial attach="material" side={DoubleSide} color={"#408010"}/></mesh>;
 }
 
 // NOTE: This will create custom cuboid, not from a .obj file
@@ -297,3 +300,8 @@ const Cuboid = (iter,type,shape,pos,fill,theta) => {
     )
 }
 
+const Texture = (url) => {
+    console.log(url)
+    const texture = new TextureLoader().load("Textures/texture.png")
+    return texture
+}

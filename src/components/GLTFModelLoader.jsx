@@ -8,7 +8,7 @@ const GLTFObject = props => {
        props.path
     )
     console.log(model.scene)
-    model.scene.scale.set(0.27,0.27,0.27);
+    model.scene.scale.set(0.25,0.25,0.25);
     return (
         <primitive object={model.scene} position={props.position}/>
     )

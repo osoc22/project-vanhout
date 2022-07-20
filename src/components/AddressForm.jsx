@@ -123,7 +123,6 @@ function AddressForm(props){
         event.preventDefault();
         const projectId = generalSuggestions[0].projectID;
         setProjectId(projectId);
-        history.push(`/visualisation/${projectId}`);
     }
 
 

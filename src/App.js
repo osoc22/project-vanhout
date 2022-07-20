@@ -5,20 +5,16 @@ import React, { Component,useEffect, useState,Suspense, useRef} from 'react';
 import {Canvas, extend, useThree, useLoader, useFrame} from '@react-three/fiber';
 import {getJsonByProjectId, loadObjectsFromJson} from './components/ObjectLoader';
 import AddressForm from './components/AddressForm';
-import {GLTFObject } from './components/GLTFModelLoader';
 import{CameraControls, Orbit} from'./components/CameraControls';
 import CameraButtons  from './components/CameraButtons';
-import * as THREE from 'three';
-import { OrthographicCamera, PerspectiveCamera } from 'three';
-import { Router, Routes, Route} from "react-router-dom";
+import { AmbientLight, HemisphereLight, OrthographicCamera, PerspectiveCamera } from 'three';
+import { Router, Routes, Route, HashRouter, Navigate} from "react-router-dom";
 import { createBrowserHistory } from "history";
+import { CreatePdf } from './components/PDFGen';
 
 // import * as THREE from 'three';
 
 const history = createBrowserHistory();
-
-
-
 
 //Cursor 
 const cursor = {
@@ -54,6 +50,11 @@ const cursor = {
 // resizeCanvasToDisplaySize();
 
 
+const GlobalRenderSetter = (props) => {
+  const {camera, gl} = useThree();
+  props.setRenderer(gl)
+}
+
 const Building = (props) => {
   const [projectMesh,setProjectMesh] = useState([])
   const [projectId,_] = useState(props.projectId);
@@ -62,6 +63,7 @@ const Building = (props) => {
     let objects = await loadObjectsFromJson(projectId)
     setProjectMesh(objects)
   }
+
   useEffect (() => {
     fetchProject()
   }, [projectId])
@@ -72,9 +74,7 @@ const Building = (props) => {
   //   }, 1000);
   //   return () => clearInterval(interval);
   // }, []);
-
   return projectMesh
-
 }
 
 const CameraHelper = (props) => {
@@ -95,56 +95,41 @@ const CameraHelper = (props) => {
     </group>
 }
 
-// function App() {
-
-
-//   let [projectId, setProjectId] = useState("");
-
-//   return (
-//       <Router location={history.location} history={history}>
-//         <div className='App'>
-//         <Routes>
-//           <Route exact path="/" element={<AddressForm setProjectId={setProjectId} history={history} />}/>
-//           <Route path="/visualisation/:projectId"
-//                 element={
-//                   <Canvas camera={{position:[0,0,-10], fov:75}}>
-//                     <CameraHelper/>
-//                     <ambientLight intensity={1}/>
-//                     <Orbit/>
-//                     <axesHelper args={[5]}/>
-//                     <Building projectId={projectId} />
-//                   </Canvas>
-//                 } />
-//                 <CameraButtons/>
-//         </Routes>
-//         </div>
-//       </Router>
-// )};
 
 // test APP
 function App() {
-
-
   let [projectId, setProjectId] = useState("");
   let [moveUp, setMoveUp] = useState(false);
+  let [renderer, setRenderer] = useState();
+  let [center,setCenter] = useState([0,0,0]);
+  //console.log(`URL: ${process.env.PUBLIC_URL}`);
 
   useEffect(()=>{
     console.log("MOVE UP");
   },[moveUp]);
 
   return (
-    <>
-    <CameraButtons rotNum={45} setMoveUp={setMoveUp} moveUp={moveUp} />
-    <Canvas camera={{position:[0,0,1], fov:75 }}>
-      <CameraHelper rotationNum={180}/>
-      <ambientLight intensity={1}/>
-      <Orbit moveUp={moveUp} setMoveUp={setMoveUp} />
-      <axesHelper args={[5]}/>
-      <Building projectId={projectId}  />
-    </Canvas>                
-    
-  </>
+      <HashRouter  location={history.location} history={history}>
+        <div className='App'>
+        <Routes>
+          <Route path="/" element={projectId.length != 0 ? <Navigate to={`/visualisation/${projectId}`} /> : <AddressForm setProjectId={setProjectId} history={history} /> }>
 
+          </Route>
+          <Route path={`/visualisation/:projectId`}
+                element={ <>
+                  <CameraButtons rotNum={45} setMoveUp={setMoveUp} moveUp={moveUp} />
+                  <Canvas  gl={{ preserveDrawingBuffer: true ,antialias:true}}>
+                    <CameraHelper rotationNum={180}/>
+                    <Orbit moveUp={moveUp} setMoveUp={setMoveUp} />
+                    <Building projectId={projectId} setCenter={setCenter}/>
+                    <GlobalRenderSetter setRenderer={setRenderer}/>
+                  </Canvas>
+                  </>
+                } />
+        </Routes>
+        <button onClick={() => CreatePdf(renderer)}>??</button>
+        </div>
+      </HashRouter>
 )};
 
 export default App;
