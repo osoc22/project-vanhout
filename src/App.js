@@ -14,7 +14,6 @@ import { CreatePdf } from './components/PDFGen';
 // import * as THREE from 'three';
 
 const history = createBrowserHistory();
-let globalRenderer;
 
 extend({OrbitControls});
 const Orbit = () => {
@@ -24,9 +23,9 @@ const Orbit = () => {
   )
 }
 
-const GlobalRenderSetter = () => {
+const GlobalRenderSetter = (props) => {
   const {camera, gl} = useThree();
-  globalRenderer = gl;
+  props.setRenderer(gl)
 }
 
 const Building = (props) => {
@@ -37,6 +36,7 @@ const Building = (props) => {
     let objects = await loadObjectsFromJson(projectId)
     setProjectMesh(objects)
   }
+
   useEffect (() => {
     fetchProject()
   }, [projectId])
@@ -59,6 +59,7 @@ const CameraHelper = () => {
 
 function App() {
   let [projectId, setProjectId] = useState("");
+  let [renderer, setRenderer] = useState();
 
   return (
       <Router location={history.location} history={history}>
@@ -71,11 +72,11 @@ function App() {
                     <Orbit/>
                     <ambientLight intensity={0.8} decay={10} color={"#FFFFFF"}/>
                     <Building projectId={projectId} />
-                    <GlobalRenderSetter/>
+                    <GlobalRenderSetter setRenderer={setRenderer}/>
                   </Canvas>
                 } />
         </Routes>
-        <button onClick={() => CreatePdf(globalRenderer)}>??</button>
+        <button onClick={() => CreatePdf(renderer)}>??</button>
         </div>
       </Router>
 )};
