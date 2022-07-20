@@ -4,6 +4,7 @@ import state from '../CamerState';
 import * as THREE from 'three';
 import { PerspectiveCamera } from 'three';
 import {OrbitControls} from'three/examples/jsm/controls/OrbitControls';
+import { useEffect } from 'react';
 
 
 // const CameraControls = ({}) => {
@@ -27,8 +28,24 @@ import {OrbitControls} from'three/examples/jsm/controls/OrbitControls';
 extend({OrbitControls});
 const Orbit = (props) => {
   const {camera, gl} = useThree();
-    props.setCamera(camera)
-  camera.position.set( 0, 0, 1 );
+
+  useEffect(()=>{
+    camera.position.set( 0, 0, 1 );
+  },[]);
+
+
+  let moveUp = props.moveUp;
+  let setMoveUp = props.setMoveUp;
+
+  useFrame(()=>{
+    if (moveUp){
+      console.log(`MOVE UP: ${moveUp}, ${JSON.stringify(camera.position)}`);
+      camera.rotation.set(45*Math.PI/180,0,1);
+      //setMoveUp(false)
+    }
+  },[moveUp]);
+
+
 
   const controls = useRef();
 

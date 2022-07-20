@@ -18,19 +18,13 @@ import right from '../arrows/arrow-right-square-fill.svg'
 //       </group>
 //   }
 
-const xRotation = (cam, rotNum) => {
-    const rotationNum = rotNum
-    
-    const x = (rotationNum * Math.PI) / 180
-    cam.rotation.set(0,x, 0)
-    console.log(cam.rotation)}
+
 
 const CameraButtons = (props) => {
-    const controls = useRef();
     return(
     <>
     {/* <CameraHelper position={[]}/> */}
-        <button type="button" id="top" onClick={() => xRotation(props.camera, props.rotNum)}>
+        <button type="button" id="top" onClick={() => props.setMoveUp(true)}>
         <img src={up} alt="up" />  
         </button>
 

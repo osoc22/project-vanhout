@@ -84,7 +84,7 @@ const CameraHelper = (props) => {
   // useFrame(() => console.log(camera.position) )
   
   camera.rotation.set(x, 0, 0);
-  console.log(camera.rotation);
+  //console.log(camera.rotation);
   // return <group position={props.position}>
   //   <cameraHelper args={[camera]} />
     
@@ -126,18 +126,19 @@ function App() {
 
 
   let [projectId, setProjectId] = useState("");
-  let [camera, setCamera] = useState('');
-  useEffect(() => {
-    console.log(camera);
-  }, [camera])
+  let [moveUp, setMoveUp] = useState(false);
+
+  useEffect(()=>{
+    console.log("MOVE UP");
+  },[moveUp]);
 
   return (
     <>
-    <CameraButtons setCamera={setCamera} camera={camera} rotNum={45}/>
+    <CameraButtons rotNum={45} setMoveUp={setMoveUp} moveUp={moveUp} />
     <Canvas camera={{position:[0,0,1], fov:75 }}>
       <CameraHelper rotationNum={180}/>
       <ambientLight intensity={1}/>
-      <Orbit setCamera={setCamera}/>
+      <Orbit moveUp={moveUp} setMoveUp={setMoveUp} />
       <axesHelper args={[5]}/>
       <Building projectId={projectId}  />
     </Canvas>                
