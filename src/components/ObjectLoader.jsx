@@ -58,7 +58,6 @@ export async function loadObjectsFromJson(projectId) {
     let corners = [];
     let corner;
 
-    //object.push(<mesh><Plane></Plane></mesh>)
     objects.push(LoadParcel(latestModelData.parcel));
 
     for (let i=0;i<latestModelData.elements.length;i++) {
