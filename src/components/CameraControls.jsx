@@ -58,10 +58,10 @@ const Orbit = (props) => {
     attach='orbitControls' 
     ref={controls} 
     args={[camera, gl.domElement]}
-    maxAzimuthAngle={Math.PI}
-    maxPolarAngle={Math.PI/4}
-    minAzimuthAngle={-Math.PI}
-    minPolarAngle={0}
+    // maxAzimuthAngle={Math.PI}
+    // maxPolarAngle={Math.PI/4}
+    // minAzimuthAngle={-Math.PI}
+    // minPolarAngle={0}
     />
   )
 }
