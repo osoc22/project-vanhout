@@ -1,5 +1,5 @@
 import {useFrame, useThree, extend} from '@react-three/fiber'
-import React, {useRef} from 'react'
+import React, {useRef,useState} from 'react'
 import state from '../CamerState';
 import * as THREE from 'three';
 import { PerspectiveCamera } from 'three';
@@ -27,12 +27,15 @@ import { useEffect } from 'react';
 // }
 extend({OrbitControls});
 const Orbit = (props) => {
+  const [position,_] = useState(props.position)
   const {camera, gl} = useThree();
 
   useEffect(()=>{
-    camera.position.set( 0, 0, 1 );
-  },[]);
-
+    if (position){
+      console.log(position)
+    camera.position.set(position[0],position[1],position[2]);
+    }
+  },[position]);
 
   let moveUp = props.moveUp;
   let setMoveUp = props.setMoveUp;

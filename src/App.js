@@ -3,7 +3,7 @@ import './App.css';
 import './react-autosuggest.css';
 import React, { Component,useEffect, useState,Suspense, useRef} from 'react';
 import {Canvas, extend, useThree, useLoader, useFrame} from '@react-three/fiber';
-import {getModels, loadObjectsFromJson} from './components/ObjectLoader';
+import { getLatestLayout,getRandomLayout,getModels, loadObjectsFromJson,getBuildingCenterFromJson} from './components/ObjectLoader';
 import AddressForm from './components/AddressForm';
 import{CameraControls, Orbit} from'./components/CameraControls';
 import CameraButtons  from './components/CameraButtons';
@@ -11,8 +11,6 @@ import { Router, Routes, Route, HashRouter, Navigate} from "react-router-dom";
 import Slider from'./components/Slider';
 import { createBrowserHistory } from "history";
 import { CreatePdf } from './components/PDFGen';
-
-// import * as THREE from 'three';
 
 const history = createBrowserHistory();
 
@@ -31,17 +29,12 @@ const Building = (props) => {
   const [projectJSON,setProjectJSON] = useState([])
   const [projectMesh,setProjectMesh] = useState([])
   const [projectId,_p] = useState(props.projectId);
-  const [floor,_f] = useState(parseInt(props.floor));
+  const [floor,_f] = useState(props.sliderValue);
   
   const fetchModels = async function() {
     let models = await getModels(projectId)
     setProjectJSON(models)
-    console.log(models)
-  }
-
-  const fetchProject = async function() {
-    let objects = await loadObjectsFromJson(projectJSON, floor)
-    setProjectMesh(objects)
+    //console.log(models)
   }
 
   useEffect (() => {
@@ -50,12 +43,13 @@ const Building = (props) => {
 
   useEffect (() => {
     if(projectJSON.length) {
-      fetchProject()
+      let modelData = getLatestLayout(projectJSON);
+      let objects = loadObjectsFromJson(modelData, floor)
+      setProjectMesh(objects)
+      props.setCenter([getBuildingCenterFromJson(modelData,floor)])
     }
-    console.log(floor);
-  }, [projectJSON, floor])
-
-  
+    //console.log(floor)
+  }, [projectJSON, floor])  
 
   // useEffect(() => {
   //   const interval = setInterval(() => {
@@ -90,7 +84,7 @@ function App() {
   let [projectId, setProjectId] = useState("");
   let [moveUp, setMoveUp] = useState(false);
   let [renderer, setRenderer] = useState();
-  let [center,setCenter] = useState([0,0,0]);
+  let [center,setCenter] = useState([0,0,1]);
   let [sliderValue, setSliderValue] = useState(1);
   //console.log(`URL: ${process.env.PUBLIC_URL}`);
 
@@ -99,8 +93,10 @@ function App() {
   },[moveUp]);
 
   const sliderToApp = (data) => {
-    setSliderValue(data);
+    setSliderValue(parseInt(data));
   }
+
+
 
   return (
       <HashRouter  location={history.location} history={history}>
@@ -113,8 +109,8 @@ function App() {
                   <CameraButtons rotNum={45} setMoveUp={setMoveUp} moveUp={moveUp} />
                   <Canvas  gl={{ preserveDrawingBuffer: true ,antialias:true}}>
                     <CameraHelper rotationNum={180}/>
-                    <Orbit moveUp={moveUp} setMoveUp={setMoveUp} />
-                    <Building projectId={projectId} setCenter={setCenter}/>
+                    <Orbit moveUp={moveUp} setMoveUp={setMoveUp} pos={center}/>
+                    <Building projectId={projectId} sliderValue={sliderValue} setCenter={setCenter}/>
                     <GlobalRenderSetter setRenderer={setRenderer}/>
                   </Canvas>
                   </>

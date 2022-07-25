@@ -42,36 +42,30 @@ export async function getJsonByAddressParameters() {
 
 export async function getModels(projectId) {
     const modelData = await getJsonByProjectId(projectId)
-    console.log(modelData)
     return modelData
 }
 
 export function getRandomLayout(modelData) {
-    let randomModel = Math.round(Math.random()*(modelData.length-1));
-    const latestModelData = modelData[modelData.length-1]//modelData[randomModel]
-    console.log(latestModelData)
-    console.log(randomModel)
-    return latestModelData
+    let randomModelId = Math.round(Math.random()*(modelData.length-1));
+    return modelData[randomModelId]
 }
 
-export async function loadObjectsFromJson(modelData, floor = 0) {
-    // let possibleAddresses = await getPossibleAddresses("Kortrij")
-    // for (let addr of possibleAddresses) {
-    //     console.log(addr)
-    // }
-    
+export function getLatestLayout(modelData) {
+    return modelData[modelData.length-1]
+}
+
+export function loadObjectsFromJson(modelData, floor = 0) { 
     let objects = [];
     let object;
     let obj;
     let corners = [];
     let corner;
-    let latestModelData = getRandomLayout(modelData);
 
-    objects.push(LoadParcel(latestModelData.parcel));
+    objects.push(LoadParcel(modelData.parcel));
 
-    for (let i=0;i<latestModelData.elements.length;i++) {
-        obj = latestModelData.elements[i]
-        if(floor != -1) {
+    for (let i=0;i<modelData.elements.length;i++) {
+        obj = modelData.elements[i]
+        if(floor != 0) {
             if(obj.posZ >= floor*3000) {
                 continue
             }
@@ -134,6 +128,33 @@ export function loadAsGLTF(obj){
     }
     return gltf;
 
+}
+
+export function getBuildingCenterFromJson(modelData, floor = 0) {
+    let corners = []
+    let obj;
+
+    for (let i=0;i<modelData.elements.length;i++) {
+        obj = modelData.elements[i]
+        if(floor != 0) {
+            if(obj.posZ >= floor*3000) {
+            }
+        }
+        
+        if (obj.type == "corner") {
+            corners.push(obj.points[0])
+        }
+    }
+
+    const cornersByFloor = divideFloors(corners);
+    let height = 3000;
+    let middleFloor = cornersByFloor[Math.floor(cornersByFloor.length/2)];
+    let center = middleFloor[getCenterId(middleFloor)]
+    center[2] = cornersByFloor.length/2*height;
+    //center = [center[0]/1000,center[1]/1000,center[2]/1000]
+    console.log(center)
+    
+    return center
 }
 
 export function getGeometryFromNormalizedPoints(normalizedPoints) {
@@ -213,7 +234,7 @@ export function divideFloors(points) {
     return cornersByFloor
 }
 
-export function getOptimalPoint(floor) {
+export function getCenterId(floor) {
     let totalX = 0;
     let totalY = 0;
 
@@ -225,29 +246,27 @@ export function getOptimalPoint(floor) {
     const averageX = totalX/floor.length;
     const averageY = totalY/floor.length;
     let distance = Math.abs(averageX - floor[0][0]) + Math.abs(averageY - floor[0][1]);
-    let optimalPoint = 0;
+    let center = 0;
 
     for(let i = 1; i < floor.length; i++) {
         let tempDistance = Math.abs(averageX - floor[i][0]) + Math.abs(averageY - floor[i][1]);
         if(tempDistance < distance) {
             distance = tempDistance;
-            optimalPoint = i;
+            center = i;
         }
     }
 
-    return optimalPoint
+    return center
 }
 
-export function loadFloors(points, height) {
-    let cornersByFloor = divideFloors(points);
+export function loadFloors(corners, height) {
+    let cornersByFloor = divideFloors(corners);
 
-    let optimalPoint;
+    let center;
     let normalizedPoints = [];
 
     for(let floor of cornersByFloor) {
-        console.log(floor)
-        console.log(points)
-        optimalPoint = getOptimalPoint(floor);
+        center = getCenterId(floor);
         
         for(let i = 0; i < floor.length; i++) {
             let nextCorner = i+1
@@ -256,28 +275,25 @@ export function loadFloors(points, height) {
             }
 
             // draw triangle (top) (floor)
-            normalizedPoints.push(floor[optimalPoint]);
+            normalizedPoints.push(floor[center]);
             normalizedPoints.push(floor[i]);
             normalizedPoints.push(floor[nextCorner]);
 
             if(floor !== cornersByFloor[0]) {
                 // draw triangle (bottom) (floor)
-                normalizedPoints.push(addHeight(floor[optimalPoint],-height))
+                normalizedPoints.push(addHeight(floor[center],-height))
                 normalizedPoints.push(addHeight(floor[i],-height))
                 normalizedPoints.push(addHeight(floor[nextCorner],-height))
             }
-
-            console.log(floor)
-            console.log(cornersByFloor)
             
             if(floor === cornersByFloor[cornersByFloor.length-1] && cornersByFloor.length > 1) {
                 // draw triangle (top) (roof)
-                normalizedPoints.push(addHeight(floor[optimalPoint],3000));
+                normalizedPoints.push(addHeight(floor[center],3000));
                 normalizedPoints.push(addHeight(floor[i],3000));
                 normalizedPoints.push(addHeight(floor[nextCorner],3000));
 
                 // draw triangle (bottom) (roof)
-                normalizedPoints.push(addHeight(floor[optimalPoint],-height+3000))
+                normalizedPoints.push(addHeight(floor[center],-height+3000))
                 normalizedPoints.push(addHeight(floor[i],-height+3000))
                 normalizedPoints.push(addHeight(floor[nextCorner],-height+3000))
             }
@@ -294,7 +310,7 @@ export function LoadParcel(points) {
         vectorizedPoints.push([point[0],point[1],0-1])
     }
 
-    let optimalPoint = getOptimalPoint(vectorizedPoints);
+    let center = getCenterId(vectorizedPoints);
     let normalizedPoints = [];
     for(let i = 0; i < vectorizedPoints.length; i++) {
         let nextCorner = i+1
@@ -302,7 +318,7 @@ export function LoadParcel(points) {
             nextCorner = 0;
         }
 
-        normalizedPoints.push(vectorizedPoints[optimalPoint]);
+        normalizedPoints.push(vectorizedPoints[center]);
         normalizedPoints.push(vectorizedPoints[i]);
         normalizedPoints.push(vectorizedPoints[nextCorner]);
     }
