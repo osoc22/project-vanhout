@@ -27,7 +27,7 @@ const Building = (props) => {
   const [projectJSON,setProjectJSON] = useState([])
   const [projectMesh,setProjectMesh] = useState([])
   const [projectId,_p] = useState(props.projectId);
-  const [floor,_f] = useState(parseInt(props.floor));
+  // const [floor,_f] = useState(parseInt(props.floor));
   
   const fetchModels = async function() {
     let models = await getModels(projectId)
@@ -36,9 +36,15 @@ const Building = (props) => {
   }
 
   const fetchProject = async function() {
-    let objects = await loadObjectsFromJson(projectJSON, floor)
+    let objects = await loadObjectsFromJson(projectJSON, props.floor)
     setProjectMesh(objects)
   }
+
+  const showSlider = function() {
+    document.querySelector('.invisible').style.display = "block";
+  }
+
+  showSlider();
 
   useEffect (() => {
     fetchModels(projectId)
@@ -48,8 +54,8 @@ const Building = (props) => {
     if(projectJSON.length) {
       fetchProject()
     }
-    console.log(floor);
-  }, [projectJSON, floor])
+    console.log(props.floor);
+  }, [projectJSON, props.floor])
 
   
 
@@ -73,7 +79,11 @@ const CameraHelper = () => {
 
 function App() {
   let [projectId, setProjectId] = useState("");
-  let [sliderValue, setSliderValue] = useState(1);
+  let [sliderValue, setSliderValue] = useState(4);
+
+  // if (window.location.href.indexOf("visualisation") != -1) {
+  //   document.querySelector('slider_container').style.display = "none";
+  // }
 
   const sliderToApp = (data) => {
     setSliderValue(data);
@@ -93,9 +103,11 @@ function App() {
                     </Canvas>
                   } />
           </Routes>
-        <div>
-          <p>{sliderValue}</p>
+        <div className='slider_container invisible'>
+          <p className='slider_current'>Current floor: {sliderValue}</p>
+          <p>4</p>
           <Slider sliderToApp={sliderToApp}/>
+          <p>1</p>
         </div>
         </div>
       </Router>
