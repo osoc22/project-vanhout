@@ -326,6 +326,11 @@ export function LoadParcel(points) {
     return <mesh geometry={geometry}><meshBasicMaterial attach="material" side={DoubleSide} color={"#408010"}/></mesh>;
 }
 
+
+// export function getInfinitePlane() {
+//     return <Cuboid iter={"plane"} type={"plane"} pos={[0,0,-1]}/>
+// }
+
 // NOTE: This will create custom cuboid, not from a .obj file
 
 const Cuboid = (iter,type,shape,pos,fill,theta) => {
