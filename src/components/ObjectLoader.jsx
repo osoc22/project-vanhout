@@ -82,6 +82,7 @@ export function loadObjectsFromJson(modelData, floor = 0) {
         if (object) { objects.push(object)}
     }
     objects.push(loadFloors(corners, floorThickness))
+    objects.push(getInfinitePlane())
     return objects;
 }
 
@@ -327,9 +328,9 @@ export function LoadParcel(points) {
 }
 
 
-// export function getInfinitePlane() {
-//     return <Cuboid iter={"plane"} type={"plane"} pos={[0,0,-1]}/>
-// }
+export function getInfinitePlane() {
+    return Cuboid(2,"plane",[10000,1,10000],[5000,-2,-5000],'#BB8800',0)
+}
 
 // NOTE: This will create custom cuboid, not from a .obj file
 
