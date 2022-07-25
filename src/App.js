@@ -21,19 +21,18 @@ const cursor = {
 }
 
 const GlobalRenderSetter = (props) => {
-  const {camera, gl} = useThree();
-  props.setRenderer(gl)
+  const {camera, gl,scene} = useThree();
+  props.setThreeCanvas({"renderer":gl,"scene":scene,"camera":camera});
 }
 
 const Building = (props) => {
-  const [projectJSON,setProjectJSON] = useState([])
   const [projectMesh,setProjectMesh] = useState([])
   const [projectId,_p] = useState(props.projectId);
   const [floor,_f] = useState(props.sliderValue);
   
   const fetchModels = async function() {
     let models = await getModels(projectId)
-    setProjectJSON(models)
+    props.setProjectJSON(models)
     //console.log(models)
   }
 
@@ -42,14 +41,14 @@ const Building = (props) => {
   }, [projectId])
 
   useEffect (() => {
-    if(projectJSON.length) {
-      let modelData = getLatestLayout(projectJSON);
+    if(props.projectJSON.length) {
+      let modelData = getLatestLayout(props.projectJSON);
       let objects = loadObjectsFromJson(modelData, floor)
       setProjectMesh(objects)
       props.setCenter(getBuildingCenterFromJson(modelData,floor))
     }
     //console.log(floor)
-  }, [projectJSON, floor])  
+  }, [props.projectJSON, floor])  
 
   // useEffect(() => {
   //   const interval = setInterval(() => {
@@ -83,9 +82,10 @@ const CameraHelper = (props) => {
 function App() {
   let [projectId, setProjectId] = useState("");
   let [moveUp, setMoveUp] = useState(false);
-  let [renderer, setRenderer] = useState();
+  let [threeCanvas, setThreeCanvas] = useState();
   let [center,setCenter] = useState([0,0,1]);
   let [sliderValue, setSliderValue] = useState(1);
+  let [projectJSON,setProjectJSON] = useState([])
   //console.log(`URL: ${process.env.PUBLIC_URL}`);
 
   useEffect(()=>{
@@ -112,14 +112,14 @@ function App() {
                   <CameraButtons rotNum={45} setMoveUp={setMoveUp} moveUp={moveUp} />
                   <Canvas  gl={{ preserveDrawingBuffer: true ,antialias:true}}>
                     {/* <CameraHelper rotationNum={180}/> */}
-                    <Building projectId={projectId} sliderValue={sliderValue} setCenter={setCenter}/>
+                    <Building projectId={projectId} sliderValue={sliderValue} setCenter={setCenter} setProjectJSON={setProjectJSON} projectJSON={projectJSON}/>
                     <Orbit moveUp={moveUp} setMoveUp={setMoveUp} position={center}/>
-                    <GlobalRenderSetter setRenderer={setRenderer}/>
+                    <GlobalRenderSetter setThreeCanvas={setThreeCanvas}/>
                   </Canvas>
                   </>
                 } />
         </Routes>
-        <button onClick={() => CreatePdf(renderer)}>??</button>
+        <button onClick={() => CreatePdf(threeCanvas,projectJSON)}>??</button>
         <div>
           <p>{sliderValue}</p>
           <Slider sliderToApp={sliderToApp}/>

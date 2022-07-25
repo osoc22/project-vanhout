@@ -38,6 +38,8 @@ const Orbit = (props) => {
   let moveUp = props.moveUp;
   let setMoveUp = props.setMoveUp;
 
+  
+
   useFrame(()=>{
     if (moveUp){
       console.log(`MOVE UP: ${moveUp}, ${JSON.stringify(camera.position)}`);

@@ -131,10 +131,9 @@ export function loadAsGLTF(obj){
 
 }
 
-export function getBuildingCenterFromJson(modelData, floor = 0) {
-    let corners = []
+export function getCorners(modelData,floor) {
+    let corners = [];
     let obj;
-
     for (let i=0;i<modelData.elements.length;i++) {
         obj = modelData.elements[i]
         if(floor != 0) {
@@ -146,6 +145,11 @@ export function getBuildingCenterFromJson(modelData, floor = 0) {
             corners.push(obj.points[0])
         }
     }
+    return corners;
+}
+// for camera function
+export function getBuildingCenterFromJson(modelData, floor = 0) {
+    let corners = getCorners(modelData,floor)
 
     const cornersByFloor = divideFloors(corners);
     let height = 3000;
@@ -153,10 +157,20 @@ export function getBuildingCenterFromJson(modelData, floor = 0) {
     let center = middleFloor[getCenterId(middleFloor)]
     center[2] = cornersByFloor.length/2*height;
     center = [center[0]/1000,center[1]/1000,center[2]/1000]
-    console.log(center)
     
     return center
 }
+
+// for pdf function
+export function setCameraInCorner(threeCanvas,modelData,cornerId,floor=0) {
+    const corners = getCorners(getLatestLayout(modelData),floor)
+    const cornersByFloor = divideFloors(corners);
+    let corner = cornersByFloor[floor][cornerId%cornersByFloor[floor].length]
+    corner = [Math.random()*30,Math.random()*30,Math.random()*30] //corner[0]/1000,corner[1]/1000,(corner[2]+1500)/1000
+    threeCanvas.camera.position.set(corner)
+    threeCanvas.renderer.render(threeCanvas.scene,threeCanvas.camera)
+}
+
 
 export function getGeometryFromNormalizedPoints(normalizedPoints) {
     let vertices = [];
@@ -308,7 +322,7 @@ export function loadFloors(corners, height) {
 export function LoadParcel(points) {
     let vectorizedPoints = []
     for (let point of points) {
-        vectorizedPoints.push([point[0],point[1],0-1])
+        vectorizedPoints.push([point[0],point[1],-2])
     }
 
     let center = getCenterId(vectorizedPoints);
@@ -335,20 +349,13 @@ export function getInfinitePlane() {
 // NOTE: This will create custom cuboid, not from a .obj file
 
 const Cuboid = (iter,type,shape,pos,fill,theta) => {
-     return(
-        <group key={`pivot${type}${iter}${fill}`} position={pos} rotation={[0,theta,0]}>
-            <mesh key={`mesh${type}${iter}${fill}`} position={[-shape[0]/2,shape[1]/2,shape[2]/2]}>
-                <boxBufferGeometry attach="geometry" args={shape}/>
-                <meshBasicMaterial attach="material" color={fill}/>
-                {/* <axesHelper args={[5]}/> */}
-            </mesh>
+    return(
+    <group key={`pivot${type}${iter}${fill}`} position={pos} rotation={[0,theta,0]}>
+        <mesh key={`mesh${type}${iter}${fill}`} position={[-shape[0]/2,shape[1]/2,shape[2]/2]}>
+            <boxBufferGeometry attach="geometry" args={shape}/>
+            <meshBasicMaterial attach="material" color={fill}/>
             {/* <axesHelper args={[5]}/> */}
-        </group>
-    )
-}
-
-const Texture = (url) => {
-    console.log(url)
-    const texture = new TextureLoader().load("Textures/texture.png")
-    return texture
+        </mesh>
+        {/* <axesHelper args={[5]}/> */}
+    </group>)   
 }
