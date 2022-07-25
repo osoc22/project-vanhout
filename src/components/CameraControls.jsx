@@ -27,15 +27,13 @@ import { useEffect } from 'react';
 // }
 extend({OrbitControls});
 const Orbit = (props) => {
-  const [position,_] = useState(props.position)
   const {camera, gl} = useThree();
 
   useEffect(()=>{
-    if (position){
-      console.log(position)
-    camera.position.set(position[0],position[1],position[2]);
-    }
-  },[position]);
+    // console.log(props.position[0])
+    camera.position.set(props.position[0],props.position[1],props.position[2]);
+    console.log(camera.position)
+  },[props.position]);
 
   let moveUp = props.moveUp;
   let setMoveUp = props.setMoveUp;
@@ -44,7 +42,7 @@ const Orbit = (props) => {
     if (moveUp){
       console.log(`MOVE UP: ${moveUp}, ${JSON.stringify(camera.position)}`);
       camera.rotation.set(45*Math.PI/180,0,1);
-      //setMoveUp(false)
+      setMoveUp(false)
     }
   },[moveUp]);
 

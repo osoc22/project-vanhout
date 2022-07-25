@@ -46,7 +46,7 @@ const Building = (props) => {
       let modelData = getLatestLayout(projectJSON);
       let objects = loadObjectsFromJson(modelData, floor)
       setProjectMesh(objects)
-      props.setCenter([getBuildingCenterFromJson(modelData,floor)])
+      props.setCenter(getBuildingCenterFromJson(modelData,floor))
     }
     //console.log(floor)
   }, [projectJSON, floor])  
@@ -96,6 +96,9 @@ function App() {
     setSliderValue(parseInt(data));
   }
 
+  useEffect(() => {
+    console.log(center)
+  },[center])
 
 
   return (
@@ -108,9 +111,9 @@ function App() {
                 element={ <>
                   <CameraButtons rotNum={45} setMoveUp={setMoveUp} moveUp={moveUp} />
                   <Canvas  gl={{ preserveDrawingBuffer: true ,antialias:true}}>
-                    <CameraHelper rotationNum={180}/>
-                    <Orbit moveUp={moveUp} setMoveUp={setMoveUp} pos={center}/>
+                    {/* <CameraHelper rotationNum={180}/> */}
                     <Building projectId={projectId} sliderValue={sliderValue} setCenter={setCenter}/>
+                    <Orbit moveUp={moveUp} setMoveUp={setMoveUp} position={center}/>
                     <GlobalRenderSetter setRenderer={setRenderer}/>
                   </Canvas>
                   </>

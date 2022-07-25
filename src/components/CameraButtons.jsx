@@ -10,7 +10,7 @@ const CameraButtons = (props) => {
     return(
     <>
     {/* <CameraHelper position={[]}/> */}
-        <button type="button" id="top" onClick={() => props.setMoveUp(true)}>
+        <button type="button" id="top" onClick={() => props.setMoveUp(true)} >
         <img src={up} alt="up" />  
         </button>
 

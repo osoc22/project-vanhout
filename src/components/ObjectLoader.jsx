@@ -151,7 +151,7 @@ export function getBuildingCenterFromJson(modelData, floor = 0) {
     let middleFloor = cornersByFloor[Math.floor(cornersByFloor.length/2)];
     let center = middleFloor[getCenterId(middleFloor)]
     center[2] = cornersByFloor.length/2*height;
-    //center = [center[0]/1000,center[1]/1000,center[2]/1000]
+    center = [center[0]/1000,center[1]/1000,center[2]/1000]
     console.log(center)
     
     return center
