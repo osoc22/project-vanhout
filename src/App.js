@@ -28,12 +28,11 @@ const GlobalRenderSetter = (props) => {
 const Building = (props) => {
   const [projectMesh,setProjectMesh] = useState([])
   const [projectId,_p] = useState(props.projectId);
-  const [floor,_f] = useState(props.sliderValue);
-  
+
   const fetchModels = async function() {
     let models = await getModels(projectId)
     props.setProjectJSON(models)
-    //console.log(models)
+    console.log(models)
   }
 
   useEffect (() => {
@@ -43,13 +42,21 @@ const Building = (props) => {
   useEffect (() => {
     if(props.projectJSON.length) {
       let modelData = getLatestLayout(props.projectJSON);
-      let objects = loadObjectsFromJson(modelData, floor)
+      let objects = loadObjectsFromJson(modelData, props.sliderValue)
       setProjectMesh(objects)
-      props.setCenter(getBuildingCenterFromJson(modelData,floor))
+      props.setCenter(getBuildingCenterFromJson(modelData,props.sliderValue))
     }
-    //console.log(floor)
-  }, [props.projectJSON, floor])  
+  }, [props.projectJSON])  
 
+  useEffect(()=> {
+    if(props.projectJSON.length) {
+      let modelData = getLatestLayout(props.projectJSON);
+      let objects = loadObjectsFromJson(modelData, props.sliderValue)
+      setProjectMesh(objects)
+    }
+  },[props.sliderValue])
+
+  document.querySelector('.invisible').style.display = "block";
   // useEffect(() => {
   //   const interval = setInterval(() => {
   //     fetchProject()
@@ -122,7 +129,12 @@ function App() {
         <button onClick={() => CreatePdf(threeCanvas,projectJSON)}>??</button>
         <div>
           <p>{sliderValue}</p>
+        <div className='slider_container invisible'>
+          <p className='slider_current'>Current floor: {sliderValue}</p>
+          <p>4</p>
           <Slider sliderToApp={sliderToApp}/>
+          <p>1</p>
+        </div>
         </div>
         </div>
       </HashRouter>
