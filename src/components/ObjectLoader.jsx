@@ -55,6 +55,7 @@ export function getLatestLayout(modelData) {
 }
 
 export function loadObjectsFromJson(modelData, floor = 0) { 
+    const floorCount = getFloorCount(modelData);
     let objects = [];
     let object;
     let obj;
@@ -81,30 +82,33 @@ export function loadObjectsFromJson(modelData, floor = 0) {
         object = loadObj(obj,i);
         if (object) { objects.push(object)}
     }
-    objects.push(loadFloors(corners, floorThickness))
+
+    objects.push(loadFloors(corners, floorThickness,floorCount,floor === floorCount+1))
     objects.push(getInfinitePlane())
     return objects;
 }
 
 // Note: write dynamically so any obj version can be positioned 
 export function loadObj(obj,iter) {
+    let heightModifier = 0;
+    let ZModifier = 0;
     if (["building"].indexOf(obj.type) == -1) {
         if (obj.fill === 'none') {
             return;
             obj.fill = "#555555"
-            obj.height = 1}
+        }
         
         if (obj.type == "wall") {
             obj.fill = wallcolor
         } else {
-            obj.height -= floorThickness;
-            obj.posZ += 10;
+            heightModifier -= floorThickness;
+            ZModifier += 10;
         }
 
         let gltf = loadAsGLTF(obj); 
         if (gltf) { return gltf}
 
-        return Cuboid(iter,obj.type,[obj.width/1000,obj.height/1000,obj.depth/1000],[-obj.posX/1000,obj.posZ/1000,obj.posY/1000],obj.fill,obj.theta)
+        return Cuboid(iter,obj.type,[obj.width/1000,obj.height/1000+heightModifier/1000,obj.depth/1000],[-obj.posX/1000,obj.posZ/1000+ZModifier/1000,obj.posY/1000],obj.fill,obj.theta)
     }
 }
 
@@ -234,7 +238,8 @@ export function divideFloors(points) {
     let currentFloor = [];
 
     for(let point of points) {
-        if(point[2] == floorHeight) {
+        if(point[2] < floorHeight+3000) {
+            point[2] = floorHeight
             currentFloor.push(point);
             if(point == points[points.length-1]) {
                 cornersByFloor.push(currentFloor);
@@ -247,6 +252,11 @@ export function divideFloors(points) {
         floorHeight = point[2];
     }
     return cornersByFloor
+}
+
+export function getFloorCount(modelData) {
+    let corners = getCorners(modelData)
+    return divideFloors(corners).length;
 }
 
 export function getCenterId(floor) {
@@ -274,7 +284,7 @@ export function getCenterId(floor) {
     return center
 }
 
-export function loadFloors(corners, height) {
+export function loadFloors(corners, height,floorCount,drawRoof) {
     let cornersByFloor = divideFloors(corners);
 
     let center;
@@ -301,7 +311,7 @@ export function loadFloors(corners, height) {
                 normalizedPoints.push(addHeight(floor[nextCorner],-height))
             }
             
-            if(floor === cornersByFloor[cornersByFloor.length-1] && cornersByFloor.length > 1) {
+            if(cornersByFloor.length === floorCount && drawRoof) {
                 // draw triangle (top) (roof)
                 normalizedPoints.push(addHeight(floor[center],3000));
                 normalizedPoints.push(addHeight(floor[i],3000));

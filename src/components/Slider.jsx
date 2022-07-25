@@ -1,9 +1,9 @@
-import React, { Component,useEffect, useState, useMemo,Suspense} from 'react';
-
-export default function Slider({sliderToApp}) {
+const Slider = (props) => {
     return(
         <div className='slider_actual'>
-            <input onInput={() => sliderToApp(document.getElementById("slider").value)} type="range" min="1" max="4" id="slider" />
+            <input onInput={() => props.sliderToApp(document.getElementById("slider").value)} type="range" min="1" max={props.max} id="slider" />
         </div>
     )
 }
+
+export default Slider;

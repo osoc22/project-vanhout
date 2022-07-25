@@ -3,7 +3,7 @@ import './App.css';
 import './react-autosuggest.css';
 import React, { Component,useEffect, useState,Suspense, useRef} from 'react';
 import {Canvas, extend, useThree, useLoader, useFrame} from '@react-three/fiber';
-import { getLatestLayout,getRandomLayout,getModels, loadObjectsFromJson,getBuildingCenterFromJson} from './components/ObjectLoader';
+import { getLatestLayout,getModels, loadObjectsFromJson,getBuildingCenterFromJson,getFloorCount} from './components/ObjectLoader';
 import AddressForm from './components/AddressForm';
 import{CameraControls, Orbit} from'./components/CameraControls';
 import CameraButtons  from './components/CameraButtons';
@@ -45,6 +45,7 @@ const Building = (props) => {
       let objects = loadObjectsFromJson(modelData, props.sliderValue)
       setProjectMesh(objects)
       props.setCenter(getBuildingCenterFromJson(modelData,props.sliderValue))
+      props.setFloorCount(getFloorCount(modelData))
     }
   }, [props.projectJSON])  
 
@@ -92,8 +93,8 @@ function App() {
   let [threeCanvas, setThreeCanvas] = useState();
   let [center,setCenter] = useState([0,0,1]);
   let [sliderValue, setSliderValue] = useState(1);
-  let [projectJSON,setProjectJSON] = useState([])
-  //console.log(`URL: ${process.env.PUBLIC_URL}`);
+  let [floorCount,setFloorCount] = useState(1);
+  let [projectJSON,setProjectJSON] = useState([]);
 
   useEffect(()=>{
     console.log("MOVE UP");
@@ -109,17 +110,17 @@ function App() {
 
 
   return (
-      <HashRouter  location={history.location} history={history}>
-        <div className='App'>
+    <HashRouter  location={history.location} history={history}>
+      <div className='App'>
         <Routes>
           <Route path="/" element={projectId.length != 0 ? <Navigate to={`/visualisation/${projectId}`} /> : <AddressForm setProjectId={setProjectId} history={history} /> }>
           </Route>
           <Route path={`/visualisation/:projectId`}
                 element={ <>
-                  <CameraButtons rotNum={45} setMoveUp={setMoveUp} moveUp={moveUp} />
+                  {/* <CameraButtons rotNum={45} setMoveUp={setMoveUp} moveUp={moveUp} /> */}
                   <Canvas  gl={{ preserveDrawingBuffer: true ,antialias:true}}>
                     {/* <CameraHelper rotationNum={180}/> */}
-                    <Building projectId={projectId} sliderValue={sliderValue} setCenter={setCenter} setProjectJSON={setProjectJSON} projectJSON={projectJSON}/>
+                    <Building projectId={projectId} sliderValue={sliderValue} setCenter={setCenter} setProjectJSON={setProjectJSON} projectJSON={projectJSON} setFloorCount={setFloorCount}/>
                     <Orbit moveUp={moveUp} setMoveUp={setMoveUp} position={center}/>
                     <GlobalRenderSetter setThreeCanvas={setThreeCanvas}/>
                   </Canvas>
@@ -127,17 +128,14 @@ function App() {
                 } />
         </Routes>
         <button onClick={() => CreatePdf(threeCanvas,projectJSON)}>??</button>
-        <div>
-          <p>{sliderValue}</p>
         <div className='slider_container invisible'>
           <p className='slider_current'>Current floor: {sliderValue}</p>
-          <p>4</p>
-          <Slider sliderToApp={sliderToApp}/>
+          <p>{floorCount+1}</p>
+          <Slider sliderToApp={sliderToApp} max={floorCount+1}/>
           <p>1</p>
         </div>
-        </div>
-        </div>
-      </HashRouter>
+      </div>
+    </HashRouter>
 )};
 
 export default App;
