@@ -72,7 +72,11 @@ const Buildings = (props) => {
   const [projectId,_p] = useState(props.projectId);
 
   const fetchModels = async function() {
-    let models = await getJsonByProjectIds([39,58,31,7,29,34,32,43,38,55,19,56,59,35,8,13,14,15,41]) // 39,58,31,7,29,34,32,43,38,55,19,56,59,35,8,13,14,15,41
+    let projectIds = [projectId];
+    if (projectId === -1) {
+      projectIds = [39,58,31,7,29,34,32,43,38,55,19,56,59,35,8,13,14,15,41]
+    };
+    let models = await getJsonByProjectIds(projectIds)
     props.setProjectJSON(models)
     console.log(models)
   }
@@ -158,8 +162,8 @@ function App() {
                   {/* <CameraButtons rotNum={45} setMoveUp={setMoveUp} moveUp={moveUp} /> */}
                   <Canvas  gl={{ preserveDrawingBuffer: true ,antialias:true}}>
                     {/* <CameraHelper rotationNum={180}/> */}
-                    <Building projectId={projectId} sliderValue={sliderValue} setCenter={setCenter} setProjectJSON={setProjectJSON} projectJSON={projectJSON} setFloorCount={setFloorCount}/>
-                    {/* <Buildings projectId={projectId} sliderValue={sliderValue} setCenter={setCenter} setProjectJSON={setProjectJSON} projectJSON={projectJSON} setFloorCount={setFloorCount}/> */}
+                    {/* <Building projectId={projectId} sliderValue={sliderValue} setCenter={setCenter} setProjectJSON={setProjectJSON} projectJSON={projectJSON} setFloorCount={setFloorCount}/> */}
+                    <Buildings projectId={projectId} sliderValue={sliderValue} setCenter={setCenter} setProjectJSON={setProjectJSON} projectJSON={projectJSON} setFloorCount={setFloorCount}/>
                     <Orbit moveUp={moveUp} setMoveUp={setMoveUp} position={center}/>
                     <GlobalRenderSetter setThreeCanvas={setThreeCanvas}/>
                   </Canvas>

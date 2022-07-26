@@ -75,4 +75,6 @@
  {"streetName": "Hazewindstraat", "streetNumber": "25", "postalCode": "9100", "city": "Sint", "projectID": 24},
  {"streetName": "Vlasstraat", "streetNumber": "40", "postalCode": "9100", "city": "Sint", "projectID": 54},
  {"streetName": "Groenplein", "streetNumber": "8", "postalCode": "2300", "city": "Turnhout", "projectID": 16},
- {"streetName": "Volksstraat", "streetNumber": "71", "postalCode": "2830", "city": "Willebroek", "projectID": 65}]
+ {"streetName": "Volksstraat", "streetNumber": "71", "postalCode": "2830", "city": "Willebroek", "projectID": 65},
+ {"streetName": "DemoStreet", "streetNumber": "0", "postalCode": "0000", "city": "OSOC", "projectID": -1}
+]

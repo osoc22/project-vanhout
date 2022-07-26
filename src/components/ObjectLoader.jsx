@@ -90,7 +90,6 @@ export function loadObjectsFromJson(modelData, floor = 0,extraDistance=0) {
 
     let corners = [];
     let corner;
-    console.log(modelData)
     
     for (let i=0;i<modelData.elements.length;i++) {
         obj = modelData.elements[i]
@@ -123,7 +122,6 @@ export function loadObj(obj,iter) {
     if (["building"].indexOf(obj.type) == -1) {
         if (obj.fill === 'none') {
             return;
-            obj.fill = "#555555"
         }
         
         const {heightModifier,ZModifier} = setWallModifiers(obj);
