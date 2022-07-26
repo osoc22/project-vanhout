@@ -59,8 +59,11 @@ export function loadObjectsFromJson(modelData, floor = 0) {
     let objects = [];
     let object;
     let obj;
+
     let corners = [];
     let corner;
+
+    //let closedWalls = [];
 
     objects.push(LoadParcel(modelData.parcel));
 
@@ -79,6 +82,11 @@ export function loadObjectsFromJson(modelData, floor = 0) {
             corners.push(obj.points[0])
             continue
         }
+
+        // if (obj.type === "wall" && obj.properties["wall-type"].indexOf("closed") !== -1) {
+        //     closedWalls.push(obj)
+        // }
+
         object = loadObj(obj,i);
         if (object) { objects.push(object)}
     }
@@ -89,21 +97,15 @@ export function loadObjectsFromJson(modelData, floor = 0) {
 }
 
 // Note: write dynamically so any obj version can be positioned 
+
 export function loadObj(obj,iter) {
-    let heightModifier = 0;
-    let ZModifier = 0;
     if (["building"].indexOf(obj.type) == -1) {
         if (obj.fill === 'none') {
             return;
             obj.fill = "#555555"
         }
         
-        if (obj.type == "wall") {
-            obj.fill = wallcolor
-        } else {
-            heightModifier -= floorThickness;
-            ZModifier += 10;
-        }
+        const {heightModifier,ZModifier} = setWallModifiers(obj);
 
         let gltf = loadAsGLTF(obj); 
         if (gltf) { return gltf}
@@ -112,13 +114,21 @@ export function loadObj(obj,iter) {
     }
 }
 
+export function setWallModifiers(obj) {
+    if (obj.type == "wall") {
+        obj.fill = wallcolor
+        return {"heightModifier":0,"ZModifier":0}
+    }
+    return {"heightModifier":-floorThickness,"ZModifier":10}
+}
+
 export function loadAsGLTF(obj){
     let gltf;
     for (let objectName in GLTFObjects) {
         if (obj.type === objectName) {
             for (let size in GLTFObjects[objectName]) {
                 if ((obj.properties.svg).indexOf(size) !== -1) {
-                    console.log(`found: ${size} for obj ${obj.type}`)
+                    //console.log(`found: ${size} for obj ${obj.type}`)
                     return <Suspense fallback={null} >
                                 <group position={[-obj.posX/1000,obj.posZ/1000,obj.posY/1000]} rotation={[0,obj.theta,0]}>
                                 <GLTFObject path={process.env.PUBLIC_URL + GLTFObjects[objectName][size][selectedColor]} position={[-obj.width/1000/2,0,obj.depth/1000/2]}/>
@@ -127,7 +137,6 @@ export function loadAsGLTF(obj){
                          </Suspense>
                 }
             }
-            //let ref = GLTFobjects.objectName[]
             break
         }
     }
@@ -170,23 +179,27 @@ export function setCameraInCorner(threeCanvas,modelData,cornerId,floor=0) {
     const corners = getCorners(getLatestLayout(modelData),floor)
     const cornersByFloor = divideFloors(corners);
     let corner = cornersByFloor[floor][cornerId%cornersByFloor[floor].length]
-    corner = [Math.random()*30,Math.random()*30,Math.random()*30] //corner[0]/1000,corner[1]/1000,(corner[2]+1500)/1000
-    threeCanvas.camera.position.set(corner)
+    corner = [corner[0]/1000,corner[1]/1000,(corner[2]+1500)/1000]
+    
+    console.log(corner)
+    threeCanvas.camera.position.set(corner[0],corner[1],corner[2])
+    
+    const center = cornersByFloor[floor][getCenterId(cornersByFloor[floor])] 
+    threeCanvas.camera.lookAt(center[0]/1000,center[1]/1000,center[2]/1000)
     threeCanvas.renderer.render(threeCanvas.scene,threeCanvas.camera)
 }
 
 
 export function getGeometryFromNormalizedPoints(normalizedPoints) {
+    let positions = [];
     let vertices = [];
 
     for (let i = 0; i< normalizedPoints.length;i++) {
-        let polygon = normalizedPoints[i]
-        vertices.push([-polygon[0]/1000,polygon[2]/1000,polygon[1]/1000])
-    }
-   
-    const positions = [];
-    for (const vertex of vertices) {
-        positions.push(...vertex);
+        const polygon = normalizedPoints[i]
+        positions.push(-polygon[0]/1000)
+        positions.push(polygon[2]/1000)
+        positions.push(polygon[1]/1000)
+        //.push([-polygon[0]/1000,polygon[2]/1000,polygon[1]/1000])
     }
 
     const geometry = new BufferGeometry();
@@ -222,14 +235,14 @@ export function loadCorner(points,height){
 
         // draw side triangle (top)
         normalizedPoints.push(addHeight(points[i],height))
-        normalizedPoints.push(points[i+1])
         normalizedPoints.push(addHeight(points[i+1],height))
+        normalizedPoints.push(points[i+1])
     }
 
     let geometry = getGeometryFromNormalizedPoints(normalizedPoints)
     //const texture = Texture("./Textures/texture.jpg");
     // texture = useLoader(TextureLoader, "/Textures/texture.jpg")
-    return <mesh geometry={geometry}><meshBasicMaterial attach="material" side={DoubleSide} color={wallcolor}/></mesh>
+    return <mesh geometry={geometry}><meshBasicMaterial attach="material" color={wallcolor} side={DoubleSide}/></mesh> 
 }
 
 export function divideFloors(points) {
