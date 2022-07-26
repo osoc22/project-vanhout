@@ -85,7 +85,6 @@ const CameraHelper = (props) => {
     </group>
 }
 
-
 // test APP
 function App() {
   let [projectId, setProjectId] = useState("");
