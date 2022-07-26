@@ -180,7 +180,7 @@ export function setCameraInCorner(threeCanvas,modelData,cornerId,floor=0) {
     const cornersByFloor = divideFloors(corners);
     let corner = cornersByFloor[floor][cornerId%cornersByFloor[floor].length]
     corner = [corner[0]/1000,corner[1]/1000,(corner[2]+1500)/1000]
-    
+
     console.log(corner)
     threeCanvas.camera.position.set(corner[0],corner[1],corner[2])
     
@@ -366,7 +366,7 @@ export function LoadParcel(points) {
 
 
 export function getInfinitePlane() {
-    return Cuboid(2,"plane",[10000,1,10000],[5000,-2,-5000],'#BB8800',0)
+    return Cuboid(2,"plane",[10000,1,10000],[5000,-2,-5000],'#C07060',0)
 }
 
 // NOTE: This will create custom cuboid, not from a .obj file

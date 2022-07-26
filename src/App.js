@@ -126,7 +126,7 @@ function App() {
                   </>
                 } />
         </Routes>
-        <button onClick={() => CreatePdf(threeCanvas,projectJSON)}>??</button>
+        {/* <button onClick={() => CreatePdf(threeCanvas,projectJSON)}>??</button> */}
         <div className='slider_container invisible'>
           <p className='slider_current'>Current floor: {sliderValue}</p>
           <p>{floorCount+1}</p>
