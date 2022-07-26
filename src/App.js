@@ -3,7 +3,7 @@ import './App.css';
 import './react-autosuggest.css';
 import React, { Component,useEffect, useState,Suspense, useRef} from 'react';
 import {Canvas, extend, useThree, useLoader, useFrame} from '@react-three/fiber';
-import { getLatestLayout,getModels, loadObjectsFromJson,getBuildingCenterFromJson,getFloorCount} from './components/ObjectLoader';
+import { getLatestLayout,getModels,getBuildingCenterFromJson,getFloorCount, getHighestFloorCount, loadBuildingFromJson, loadBuildingsFromJson,getJsonByProjectIds} from './components/ObjectLoader';
 import AddressForm from './components/AddressForm';
 import{CameraControls, Orbit} from'./components/CameraControls';
 import CameraButtons  from './components/CameraButtons';
@@ -42,7 +42,7 @@ const Building = (props) => {
   useEffect (() => {
     if(props.projectJSON.length) {
       let modelData = getLatestLayout(props.projectJSON);
-      let objects = loadObjectsFromJson(modelData, props.sliderValue)
+      let objects = loadBuildingFromJson(modelData, props.sliderValue)
       setProjectMesh(objects)
       props.setCenter(getBuildingCenterFromJson(modelData,props.sliderValue))
       props.setFloorCount(getFloorCount(modelData))
@@ -52,7 +52,46 @@ const Building = (props) => {
   useEffect(()=> {
     if(props.projectJSON.length) {
       let modelData = getLatestLayout(props.projectJSON);
-      let objects = loadObjectsFromJson(modelData, props.sliderValue)
+      let objects = loadBuildingsFromJson(modelData, props.sliderValue)
+      setProjectMesh(objects)
+    }
+  },[props.sliderValue])
+
+  document.querySelector('.invisible').style.display = "block";
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     fetchProject()
+  //   }, 1000);
+  //   return () => clearInterval(interval);
+  // }, []);
+  return projectMesh
+}
+
+const Buildings = (props) => {
+  const [projectMesh,setProjectMesh] = useState([])
+  const [projectId,_p] = useState(props.projectId);
+
+  const fetchModels = async function() {
+    let models = await getJsonByProjectIds([39,58,31,7,29,34,32,43,38,55,19,56,59,35,8,13,14,15,41]) // 39,58,31,7,29,34,32,43,38,55,19,56,59,35,8,13,14,15,41
+    props.setProjectJSON(models)
+    console.log(models)
+  }
+
+  useEffect (() => {
+    fetchModels(projectId)
+  }, [projectId])
+
+  useEffect (() => {
+    if(props.projectJSON.length) {
+      let objects = loadBuildingsFromJson(props.projectJSON, props.sliderValue)
+      setProjectMesh(objects)
+      props.setFloorCount(getHighestFloorCount(props.projectJSON))
+    }
+  }, [props.projectJSON])  
+
+  useEffect(()=> {
+    if(props.projectJSON.length) {
+      let objects = loadBuildingsFromJson(props.projectJSON, props.sliderValue)
       setProjectMesh(objects)
     }
   },[props.sliderValue])
@@ -119,7 +158,8 @@ function App() {
                   {/* <CameraButtons rotNum={45} setMoveUp={setMoveUp} moveUp={moveUp} /> */}
                   <Canvas  gl={{ preserveDrawingBuffer: true ,antialias:true}}>
                     {/* <CameraHelper rotationNum={180}/> */}
-                    <Building projectId={projectId} sliderValue={sliderValue} setCenter={setCenter} setProjectJSON={setProjectJSON} projectJSON={projectJSON} setFloorCount={setFloorCount}/>
+                    {/* <Building projectId={projectId} sliderValue={sliderValue} setCenter={setCenter} setProjectJSON={setProjectJSON} projectJSON={projectJSON} setFloorCount={setFloorCount}/> */}
+                    <Buildings projectId={projectId} sliderValue={sliderValue} setCenter={setCenter} setProjectJSON={setProjectJSON} projectJSON={projectJSON} setFloorCount={setFloorCount}/>
                     <Orbit moveUp={moveUp} setMoveUp={setMoveUp} position={center}/>
                     <GlobalRenderSetter setThreeCanvas={setThreeCanvas}/>
                   </Canvas>
