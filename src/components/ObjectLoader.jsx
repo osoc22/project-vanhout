@@ -2,7 +2,9 @@ import React, { Component,useEffect, useState, useMemo,Suspense} from 'react';
 import { BufferGeometry, BufferAttribute, DoubleSide,TextureLoader} from 'three';
 import { GLTFObject } from './GLTFModelLoader';
 
-let wallcolor = "#AAAAAA";
+let innerWallColor = "#AAAAAA";
+let wallColor = "#D18B68";
+let planeColor = '#E0E0F0';
 let floorThickness = 300;
 let GLTFObjects = {
     "bathroom":{"big":{"palleteRed":"/Models/Big_bathroom.gltf"},"small":{"palleteRed":"/Models/Small_bathroom.gltf"}},
@@ -25,6 +27,20 @@ export async function getJsonByProjectId(id) {
     return await getJsonFromUrl(`https://circl.be/nieuw/tool/model.php?project=${id}&json`);
 }
 
+export async function getJsonOfProjects() {
+    return await getJsonFromUrl(`https://circl.be/nieuw/tool/model.php?&json`);
+}
+
+export async function getJsonByProjectIds(ids) {
+    let idString =""
+    for (let id of ids) {
+        idString += `${id},`
+    }
+
+    idString = idString.substring(1, idString.length-1);
+    return await getJsonFromUrl(`https://circl.be/nieuw/tool/model.php?project=${ids}&json`);
+}
+
 export async function getPossibleAddresses(street = undefined,number = undefined,postcode = undefined,city = undefined) {
     let json = await getJsonFromUrl(`https://circl.be/nieuw/tool/overzicht.php?lijst=projecten&type=json`);
     let possiblePlots = []
@@ -34,10 +50,6 @@ export async function getPossibleAddresses(street = undefined,number = undefined
         if ((street == undefined) || splitAddress[0].includes(street.toLowerCase())) {possiblePlots.push(plotData); continue;}
     }
     return possiblePlots
-}
-
-export async function getJsonByAddressParameters() {
-
 }
 
 export async function getModels(projectId) {
@@ -116,7 +128,10 @@ export function loadObj(obj,iter) {
 
 export function setWallModifiers(obj) {
     if (obj.type == "wall") {
-        obj.fill = wallcolor
+        obj.fill = wallColor;
+        if (obj.properties["wall-type"].indexOf("inner") !== -1) {
+            obj.fill = innerWallColor;
+        }
         return {"heightModifier":0,"ZModifier":0}
     }
     return {"heightModifier":-floorThickness,"ZModifier":10}
@@ -242,7 +257,7 @@ export function loadCorner(points,height){
     let geometry = getGeometryFromNormalizedPoints(normalizedPoints)
     //const texture = Texture("./Textures/texture.jpg");
     // texture = useLoader(TextureLoader, "/Textures/texture.jpg")
-    return <mesh geometry={geometry}><meshBasicMaterial attach="material" color={wallcolor} side={DoubleSide}/></mesh> 
+    return <mesh geometry={geometry}><meshBasicMaterial attach="material" color={wallColor} side={DoubleSide}/></mesh> 
 }
 
 export function divideFloors(points) {
@@ -361,12 +376,12 @@ export function LoadParcel(points) {
         normalizedPoints.push(vectorizedPoints[nextCorner]);
     }
     let geometry = getGeometryFromNormalizedPoints(normalizedPoints);
-    return <mesh geometry={geometry}><meshBasicMaterial attach="material" side={DoubleSide} color={"#408010"}/></mesh>;
+    return <mesh geometry={geometry}><meshBasicMaterial attach="material" side={DoubleSide} color={"#4F7B22"}/></mesh>;
 }
 
 
 export function getInfinitePlane() {
-    return Cuboid(2,"plane",[10000,1,10000],[5000,-2,-5000],'#C07060',0)
+    return Cuboid(2,"plane",[10000,1,10000],[5000,-2,-5000],planeColor,0)
 }
 
 // NOTE: This will create custom cuboid, not from a .obj file
