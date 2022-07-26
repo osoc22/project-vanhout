@@ -1,6 +1,5 @@
 import React, { Component,useEffect, useState, useMemo,Suspense} from 'react';
 import { BufferGeometry, BufferAttribute, DoubleSide,TextureLoader} from 'three';
-import { useLoader } from "@react-three/fiber";
 import { GLTFObject } from './GLTFModelLoader';
 
 let wallcolor = "#AAAAAA";
@@ -41,62 +40,86 @@ export async function getJsonByAddressParameters() {
 
 }
 
-export async function loadObjectsFromJson(projectId) {
-    // let possibleAddresses = await getPossibleAddresses("Kortrij")
-    // for (let addr of possibleAddresses) {
-    //     console.log(addr)
-    // }
-
+export async function getModels(projectId) {
     const modelData = await getJsonByProjectId(projectId)
-    let randomModel = Math.round(Math.random()*(modelData.length-1));
-    const latestModelData = modelData[modelData.length-1]//modelData[randomModel]
-    console.log(modelData)
-    console.log(randomModel)
-    
+    return modelData
+}
+
+export function getRandomLayout(modelData) {
+    let randomModelId = Math.round(Math.random()*(modelData.length-1));
+    return modelData[randomModelId]
+}
+
+export function getLatestLayout(modelData) {
+    return modelData[modelData.length-1]
+}
+
+export function loadObjectsFromJson(modelData, floor = 0) { 
+    const floorCount = getFloorCount(modelData);
     let objects = [];
     let object;
     let obj;
+
     let corners = [];
     let corner;
 
-    //object.push(<mesh><Plane></Plane></mesh>)
-    objects.push(LoadParcel(latestModelData.parcel));
+    //let closedWalls = [];
 
-    for (let i=0;i<latestModelData.elements.length;i++) {
-        obj = latestModelData.elements[i]
+    objects.push(LoadParcel(modelData.parcel));
+
+    for (let i=0;i<modelData.elements.length;i++) {
+        obj = modelData.elements[i]
+        if(floor != 0) {
+            if(obj.posZ >= floor*3000) {
+                continue
+            }
+        }
+        // console.log(latestModelData.elements[i]);
+        
         if (obj.type == "corner") {
             corner = loadCorner(obj.points,obj.height)
             objects.push(corner)
             corners.push(obj.points[0])
             continue
         }
+
+        // if (obj.type === "wall" && obj.properties["wall-type"].indexOf("closed") !== -1) {
+        //     closedWalls.push(obj)
+        // }
+
         object = loadObj(obj,i);
         if (object) { objects.push(object)}
     }
-    objects.push(loadFloors(corners, floorThickness))
+
+    objects.push(loadFloors(corners, floorThickness,floorCount,floor === floorCount+1))
+    objects.push(getInfinitePlane())
     return objects;
 }
 
 // Note: write dynamically so any obj version can be positioned 
+
 export function loadObj(obj,iter) {
     if (["building"].indexOf(obj.type) == -1) {
         if (obj.fill === 'none') {
             return;
             obj.fill = "#555555"
-            obj.height = 1}
-        
-        if (obj.type == "wall") {
-            obj.fill = wallcolor
-        } else {
-            obj.height -= floorThickness;
-            obj.posZ += 10;
         }
+        
+        const {heightModifier,ZModifier} = setWallModifiers(obj);
 
         let gltf = loadAsGLTF(obj); 
         if (gltf) { return gltf}
 
-        return Cuboid(iter,obj.type,[obj.width/1000,obj.height/1000,obj.depth/1000],[-obj.posX/1000,obj.posZ/1000,obj.posY/1000],obj.fill,obj.theta)
+        return Cuboid(iter,obj.type,[obj.width/1000,obj.height/1000+heightModifier/1000,obj.depth/1000],[-obj.posX/1000,obj.posZ/1000+ZModifier/1000,obj.posY/1000],obj.fill,obj.theta)
     }
+}
+
+export function setWallModifiers(obj) {
+    if (obj.type == "wall") {
+        obj.fill = wallcolor
+        return {"heightModifier":0,"ZModifier":0}
+    }
+    return {"heightModifier":-floorThickness,"ZModifier":10}
 }
 
 export function loadAsGLTF(obj){
@@ -105,7 +128,7 @@ export function loadAsGLTF(obj){
         if (obj.type === objectName) {
             for (let size in GLTFObjects[objectName]) {
                 if ((obj.properties.svg).indexOf(size) !== -1) {
-                    console.log(`found: ${size} for obj ${obj.type}`)
+                    //console.log(`found: ${size} for obj ${obj.type}`)
                     return <Suspense fallback={null} >
                                 <group position={[-obj.posX/1000,obj.posZ/1000,obj.posY/1000]} rotation={[0,obj.theta,0]}>
                                 <GLTFObject path={process.env.PUBLIC_URL + GLTFObjects[objectName][size][selectedColor]} position={[-obj.width/1000/2,0,obj.depth/1000/2]}/>
@@ -114,7 +137,6 @@ export function loadAsGLTF(obj){
                          </Suspense>
                 }
             }
-            //let ref = GLTFobjects.objectName[]
             break
         }
     }
@@ -122,17 +144,62 @@ export function loadAsGLTF(obj){
 
 }
 
+export function getCorners(modelData,floor) {
+    let corners = [];
+    let obj;
+    for (let i=0;i<modelData.elements.length;i++) {
+        obj = modelData.elements[i]
+        if(floor != 0) {
+            if(obj.posZ >= floor*3000) {
+            }
+        }
+        
+        if (obj.type == "corner") {
+            corners.push(obj.points[0])
+        }
+    }
+    return corners;
+}
+// for camera function
+export function getBuildingCenterFromJson(modelData, floor = 0) {
+    let corners = getCorners(modelData,floor)
+
+    const cornersByFloor = divideFloors(corners);
+    let height = 3000;
+    let middleFloor = cornersByFloor[Math.floor(cornersByFloor.length/2)];
+    let center = middleFloor[getCenterId(middleFloor)]
+    center[2] = cornersByFloor.length/2*height;
+    center = [center[0]/1000,center[1]/1000,center[2]/1000]
+    
+    return center
+}
+
+// for pdf function
+export function setCameraInCorner(threeCanvas,modelData,cornerId,floor=0) {
+    const corners = getCorners(getLatestLayout(modelData),floor)
+    const cornersByFloor = divideFloors(corners);
+    let corner = cornersByFloor[floor][cornerId%cornersByFloor[floor].length]
+    corner = [corner[0]/1000,corner[1]/1000,(corner[2]+1500)/1000]
+
+    console.log(corner)
+    threeCanvas.camera.position.set(corner[0],corner[1],corner[2])
+    
+    const center = cornersByFloor[floor][getCenterId(cornersByFloor[floor])] 
+    threeCanvas.camera.lookAt(center[0]/1000,center[1]/1000,center[2]/1000)
+    threeCanvas.renderer.render(threeCanvas.scene,threeCanvas.camera)
+}
+
+
 export function getGeometryFromNormalizedPoints(normalizedPoints) {
+    let positions = [];
     let vertices = [];
 
     for (let i = 0; i< normalizedPoints.length;i++) {
-        let polygon = normalizedPoints[i]
-        vertices.push([-polygon[0]/1000,polygon[2]/1000,polygon[1]/1000])
-    }
-   
-    const positions = [];
-    for (const vertex of vertices) {
-        positions.push(...vertex);
+        const polygon = normalizedPoints[i]
+        positions.push(-polygon[0]/1000)
+        positions.push(polygon[2]/1000)
+        positions.push(polygon[1]/1000)
+        //.push([-polygon[0]/1000,polygon[2]/1000,polygon[1]/1000])
     }
 
     const geometry = new BufferGeometry();
@@ -168,23 +235,24 @@ export function loadCorner(points,height){
 
         // draw side triangle (top)
         normalizedPoints.push(addHeight(points[i],height))
-        normalizedPoints.push(points[i+1])
         normalizedPoints.push(addHeight(points[i+1],height))
+        normalizedPoints.push(points[i+1])
     }
 
     let geometry = getGeometryFromNormalizedPoints(normalizedPoints)
     //const texture = Texture("./Textures/texture.jpg");
     // texture = useLoader(TextureLoader, "/Textures/texture.jpg")
-    return <mesh geometry={geometry}><meshBasicMaterial attach="material" side={DoubleSide} color={wallcolor}/></mesh>
+    return <mesh geometry={geometry}><meshBasicMaterial attach="material" color={wallcolor} side={DoubleSide}/></mesh> 
 }
 
 export function divideFloors(points) {
     let cornersByFloor = []
-    let floorHeight = 0;
+    let floorHeight = points[0][2];
     let currentFloor = [];
 
     for(let point of points) {
-        if(point[2] == floorHeight) {
+        if(point[2] < floorHeight+3000) {
+            point[2] = floorHeight
             currentFloor.push(point);
             if(point == points[points.length-1]) {
                 cornersByFloor.push(currentFloor);
@@ -199,7 +267,12 @@ export function divideFloors(points) {
     return cornersByFloor
 }
 
-export function getOptimalPoint(floor) {
+export function getFloorCount(modelData) {
+    let corners = getCorners(modelData)
+    return divideFloors(corners).length;
+}
+
+export function getCenterId(floor) {
     let totalX = 0;
     let totalY = 0;
 
@@ -211,27 +284,27 @@ export function getOptimalPoint(floor) {
     const averageX = totalX/floor.length;
     const averageY = totalY/floor.length;
     let distance = Math.abs(averageX - floor[0][0]) + Math.abs(averageY - floor[0][1]);
-    let optimalPoint = 0;
+    let center = 0;
 
     for(let i = 1; i < floor.length; i++) {
         let tempDistance = Math.abs(averageX - floor[i][0]) + Math.abs(averageY - floor[i][1]);
         if(tempDistance < distance) {
             distance = tempDistance;
-            optimalPoint = i;
+            center = i;
         }
     }
 
-    return optimalPoint
+    return center
 }
 
-export function loadFloors(points, height) {
-    let cornersByFloor = divideFloors(points);
+export function loadFloors(corners, height,floorCount,drawRoof) {
+    let cornersByFloor = divideFloors(corners);
 
-    let optimalPoint;
+    let center;
     let normalizedPoints = [];
 
     for(let floor of cornersByFloor) {
-        optimalPoint = getOptimalPoint(floor);
+        center = getCenterId(floor);
         
         for(let i = 0; i < floor.length; i++) {
             let nextCorner = i+1
@@ -240,24 +313,28 @@ export function loadFloors(points, height) {
             }
 
             // draw triangle (top) (floor)
-            normalizedPoints.push(floor[optimalPoint]);
+            normalizedPoints.push(floor[center]);
             normalizedPoints.push(floor[i]);
             normalizedPoints.push(floor[nextCorner]);
 
-            // draw triangle (bottom) (floor)
-            normalizedPoints.push(addHeight(floor[optimalPoint],-height))
-            normalizedPoints.push(addHeight(floor[i],-height))
-            normalizedPoints.push(addHeight(floor[nextCorner],-height))
+            if(floor !== cornersByFloor[0]) {
+                // draw triangle (bottom) (floor)
+                normalizedPoints.push(addHeight(floor[center],-height))
+                normalizedPoints.push(addHeight(floor[i],-height))
+                normalizedPoints.push(addHeight(floor[nextCorner],-height))
+            }
+            
+            if(cornersByFloor.length === floorCount && drawRoof) {
+                // draw triangle (top) (roof)
+                normalizedPoints.push(addHeight(floor[center],3000));
+                normalizedPoints.push(addHeight(floor[i],3000));
+                normalizedPoints.push(addHeight(floor[nextCorner],3000));
 
-            // draw triangle (top) (roof)
-            normalizedPoints.push(addHeight(floor[optimalPoint],3000));
-            normalizedPoints.push(addHeight(floor[i],3000));
-            normalizedPoints.push(addHeight(floor[nextCorner],3000));
-
-            // draw triangle (bottom) (roof)
-            normalizedPoints.push(addHeight(floor[optimalPoint],-height+3000))
-            normalizedPoints.push(addHeight(floor[i],-height+3000))
-            normalizedPoints.push(addHeight(floor[nextCorner],-height+3000))
+                // draw triangle (bottom) (roof)
+                normalizedPoints.push(addHeight(floor[center],-height+3000))
+                normalizedPoints.push(addHeight(floor[i],-height+3000))
+                normalizedPoints.push(addHeight(floor[nextCorner],-height+3000))
+            }
         }
     }
 
@@ -268,10 +345,10 @@ export function loadFloors(points, height) {
 export function LoadParcel(points) {
     let vectorizedPoints = []
     for (let point of points) {
-        vectorizedPoints.push([point[0],point[1],0-1])
+        vectorizedPoints.push([point[0],point[1],-2])
     }
 
-    let optimalPoint = getOptimalPoint(vectorizedPoints);
+    let center = getCenterId(vectorizedPoints);
     let normalizedPoints = [];
     for(let i = 0; i < vectorizedPoints.length; i++) {
         let nextCorner = i+1
@@ -279,7 +356,7 @@ export function LoadParcel(points) {
             nextCorner = 0;
         }
 
-        normalizedPoints.push(vectorizedPoints[optimalPoint]);
+        normalizedPoints.push(vectorizedPoints[center]);
         normalizedPoints.push(vectorizedPoints[i]);
         normalizedPoints.push(vectorizedPoints[nextCorner]);
     }
@@ -287,23 +364,21 @@ export function LoadParcel(points) {
     return <mesh geometry={geometry}><meshBasicMaterial attach="material" side={DoubleSide} color={"#408010"}/></mesh>;
 }
 
+
+export function getInfinitePlane() {
+    return Cuboid(2,"plane",[10000,1,10000],[5000,-2,-5000],'#C07060',0)
+}
+
 // NOTE: This will create custom cuboid, not from a .obj file
 
 const Cuboid = (iter,type,shape,pos,fill,theta) => {
-     return(
-        <group key={`pivot${type}${iter}${fill}`} position={pos} rotation={[0,theta,0]}>
-            <mesh key={`mesh${type}${iter}${fill}`} position={[-shape[0]/2,shape[1]/2,shape[2]/2]}>
-                <boxBufferGeometry attach="geometry" args={shape}/>
-                <meshBasicMaterial attach="material" color={fill}/>
-                {/* <axesHelper args={[5]}/> */}
-            </mesh>
+    return(
+    <group key={`pivot${type}${iter}${fill}`} position={pos} rotation={[0,theta,0]}>
+        <mesh key={`mesh${type}${iter}${fill}`} position={[-shape[0]/2,shape[1]/2,shape[2]/2]}>
+            <boxBufferGeometry attach="geometry" args={shape}/>
+            <meshBasicMaterial attach="material" color={fill}/>
             {/* <axesHelper args={[5]}/> */}
-        </group>
-    )
-}
-
-const Texture = (url) => {
-    console.log(url)
-    const texture = new TextureLoader().load("Textures/texture.png")
-    return texture
+        </mesh>
+        {/* <axesHelper args={[5]}/> */}
+    </group>)   
 }
