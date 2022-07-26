@@ -38,20 +38,9 @@ export async function getJsonByProjectIds(ids) {
     }
 
     idString = idString.substring(1, idString.length-1);
+    console.log(idString)
     return await getJsonFromUrl(`https://circl.be/nieuw/tool/model.php?project=${ids}&json`);
 }
-
-export async function getPossibleAddresses(street = undefined,number = undefined,postcode = undefined,city = undefined) {
-    let json = await getJsonFromUrl(`https://circl.be/nieuw/tool/overzicht.php?lijst=projecten&type=json`);
-    let possiblePlots = []
-    for (let plotData of json) {
-        let splitAddress = plotData.adres.toLowerCase().split(" ")
-        if ((street == undefined) || splitAddress[0].includes(street.toLowerCase())) {possiblePlots.push(plotData); continue;}
-        if ((street == undefined) || splitAddress[0].includes(street.toLowerCase())) {possiblePlots.push(plotData); continue;}
-    }
-    return possiblePlots
-}
-
 export async function getModels(projectId) {
     const modelData = await getJsonByProjectId(projectId)
     return modelData
@@ -66,7 +55,34 @@ export function getLatestLayout(modelData) {
     return modelData[modelData.length-1]
 }
 
-export function loadObjectsFromJson(modelData, floor = 0) { 
+export function loadBuildingFromJson(modelData,floor =0) {
+    let objects = loadObjectsFromJson(modelData,floor)
+    objects.push(getInfinitePlane())
+    objects.push(LoadParcel(modelData.parcel));
+    return objects;
+}
+
+
+export function loadBuildingsFromJson(modelData,floor =0) {
+    if (!modelData.length) {return;}
+
+    let objects = []
+    console.log(modelData)
+    let currentLayout;
+    let i =0;
+    for (let buildingModelData of modelData){
+        const id = buildingModelData.id.split(".")[0]
+        if (currentLayout === id){continue;}
+        objects.push(...loadObjectsFromJson(buildingModelData,floor,i*20))
+        currentLayout = id
+        i++;
+    }
+    objects.push(getInfinitePlane())
+    objects.push(LoadParcel(modelData[0].parcel));
+    return objects;
+}
+
+export function loadObjectsFromJson(modelData, floor = 0,extraDistance=0) { 
     const floorCount = getFloorCount(modelData);
     let objects = [];
     let object;
@@ -74,37 +90,30 @@ export function loadObjectsFromJson(modelData, floor = 0) {
 
     let corners = [];
     let corner;
-
-    //let closedWalls = [];
-
-    objects.push(LoadParcel(modelData.parcel));
-
+    console.log(modelData)
+    
     for (let i=0;i<modelData.elements.length;i++) {
         obj = modelData.elements[i]
+        obj.extraId = modelData.id;
+        obj.extraDistance = extraDistance;
         if(floor != 0) {
             if(obj.posZ >= floor*3000) {
                 continue
             }
         }
-        // console.log(latestModelData.elements[i]);
         
         if (obj.type == "corner") {
-            corner = loadCorner(obj.points,obj.height)
+            corner = loadCorner(obj.points,obj.height,extraDistance)
             objects.push(corner)
             corners.push(obj.points[0])
             continue
         }
 
-        // if (obj.type === "wall" && obj.properties["wall-type"].indexOf("closed") !== -1) {
-        //     closedWalls.push(obj)
-        // }
-
         object = loadObj(obj,i);
         if (object) { objects.push(object)}
     }
 
-    objects.push(loadFloors(corners, floorThickness,floorCount,floor === floorCount+1))
-    objects.push(getInfinitePlane())
+    objects.push(loadFloors(corners, floorThickness,floorCount,floor >= floorCount+1,extraDistance))
     return objects;
 }
 
@@ -122,7 +131,7 @@ export function loadObj(obj,iter) {
         let gltf = loadAsGLTF(obj); 
         if (gltf) { return gltf}
 
-        return Cuboid(iter,obj.type,[obj.width/1000,obj.height/1000+heightModifier/1000,obj.depth/1000],[-obj.posX/1000,obj.posZ/1000+ZModifier/1000,obj.posY/1000],obj.fill,obj.theta)
+        return Cuboid(`${iter}${obj.extraId}`,obj.type,[obj.width/1000,obj.height/1000+heightModifier/1000,obj.depth/1000],[-obj.posX/1000+obj.extraDistance,obj.posZ/1000+ZModifier/1000,obj.posY/1000],obj.fill,obj.theta)
     }
 }
 
@@ -229,9 +238,9 @@ export function addHeight(point,height) {
     return [point[0],point[1],point[2]+height]
 }
 
-export function loadCorner(points,height){
+export function loadCorner(points,height,extraDistance){
     let normalizedPoints = []
-
+    
     for (let i = 0;i < points.length-1; i++) {
         // draw triangle (bottom)
         normalizedPoints.push(points[0])
@@ -255,9 +264,7 @@ export function loadCorner(points,height){
     }
 
     let geometry = getGeometryFromNormalizedPoints(normalizedPoints)
-    //const texture = Texture("./Textures/texture.jpg");
-    // texture = useLoader(TextureLoader, "/Textures/texture.jpg")
-    return <mesh geometry={geometry}><meshBasicMaterial attach="material" color={wallColor} side={DoubleSide}/></mesh> 
+    return <mesh geometry={geometry} position={[extraDistance,0,0]}><meshBasicMaterial attach="material" color={wallColor} side={DoubleSide}/></mesh> 
 }
 
 export function divideFloors(points) {
@@ -287,6 +294,16 @@ export function getFloorCount(modelData) {
     return divideFloors(corners).length;
 }
 
+export function getHighestFloorCount(modelData) {
+    let highestfloorCount =0;
+
+    for (let buildingModelData of modelData){
+        let corners = getCorners(buildingModelData)
+        highestfloorCount = Math.max(divideFloors(corners).length,highestfloorCount)
+    }
+    return highestfloorCount
+}
+
 export function getCenterId(floor) {
     let totalX = 0;
     let totalY = 0;
@@ -312,9 +329,8 @@ export function getCenterId(floor) {
     return center
 }
 
-export function loadFloors(corners, height,floorCount,drawRoof) {
+export function loadFloors(corners, height,floorCount,drawRoof,extraDistance) {
     let cornersByFloor = divideFloors(corners);
-
     let center;
     let normalizedPoints = [];
 
@@ -354,15 +370,13 @@ export function loadFloors(corners, height,floorCount,drawRoof) {
     }
 
     let geometry = getGeometryFromNormalizedPoints(normalizedPoints);
-    // return <mesh geometry={geometry}><meshBasicMaterial attach="material" side={DoubleSide} color={"#333333"}/></mesh>
-    return <mesh geometry={geometry}><meshBasicMaterial attach="material" side={DoubleSide} color={"#8F7868"}/></mesh>
-    
+    return <mesh geometry={geometry} position={[extraDistance,0,0]}><meshBasicMaterial attach="material" side={DoubleSide} color={"#8F7868"}/></mesh>
 }
 
 export function LoadParcel(points) {
     let vectorizedPoints = []
     for (let point of points) {
-        vectorizedPoints.push([point[0],point[1],-2])
+        vectorizedPoints.push([point[0],point[1],-3])
     }
 
     let center = getCenterId(vectorizedPoints);
