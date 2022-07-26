@@ -68,15 +68,31 @@ export function loadBuildingsFromJson(modelData,floor =0) {
 
     let objects = []
     console.log(modelData)
-    let currentLayout;
-    let i =0;
-    for (let buildingModelData of modelData){
+    let nextId = "?";
+    let pos = 0;
+    for (let i=0; i<modelData.length;i++) {
+        const buildingModelData = modelData[i]
         const id = buildingModelData.id.split(".")[0]
-        if (currentLayout === id){continue;}
-        objects.push(...loadObjectsFromJson(buildingModelData,floor,i*20))
-        currentLayout = id
-        i++;
+
+        if (modelData.length-1 === i) {
+            objects.push(...loadObjectsFromJson(buildingModelData,floor,pos*20))
+            continue;
+        }
+
+        nextId = modelData[i+1].id.split(".")[0];
+        if(nextId === id) {continue;}
+        objects.push(...loadObjectsFromJson(buildingModelData,floor,pos*20))
+        pos += 1;
     }
+
+
+    // for (let buildingModelData of modelData){
+    //     const id = buildingModelData.id.split(".")[0]
+    //     if (currentLayout === id){continue;}
+    //     objects.push(...loadObjectsFromJson(buildingModelData,floor,i*20))
+    //     currentLayout = id
+    //     i++;
+    // }
     objects.push(getInfinitePlane())
     objects.push(LoadParcel(modelData[0].parcel));
     return objects;
@@ -90,7 +106,6 @@ export function loadObjectsFromJson(modelData, floor = 0,extraDistance=0) {
 
     let corners = [];
     let corner;
-    console.log(modelData)
     
     for (let i=0;i<modelData.elements.length;i++) {
         obj = modelData.elements[i]
@@ -123,7 +138,6 @@ export function loadObj(obj,iter) {
     if (["building"].indexOf(obj.type) == -1) {
         if (obj.fill === 'none') {
             return;
-            obj.fill = "#555555"
         }
         
         const {heightModifier,ZModifier} = setWallModifiers(obj);
@@ -404,6 +418,7 @@ export function getInfinitePlane() {
 // NOTE: This will create custom cuboid, not from a .obj file
 
 const Cuboid = (iter,type,shape,pos,fill,theta) => {
+    console.log(`object;${type},${pos},${theta}`)
     return(
     <group key={`pivot${type}${iter}${fill}`} position={pos} rotation={[0,theta,0]}>
         <mesh key={`mesh${type}${iter}${fill}`} position={[-shape[0]/2,shape[1]/2,shape[2]/2]}>

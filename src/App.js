@@ -72,7 +72,11 @@ const Buildings = (props) => {
   const [projectId,_p] = useState(props.projectId);
 
   const fetchModels = async function() {
-    let models = await getJsonByProjectIds([39,58,31,7,29,34,32,43,38,55,19,56,59,35,8,13,14,15,41]) // 39,58,31,7,29,34,32,43,38,55,19,56,59,35,8,13,14,15,41
+    let projectIds = [projectId];
+    if (projectId === -1) {
+      projectIds = [39,58,31,7,29,34,32,43,38,55,19,56,59,35,8,13,14,15,41]
+    };
+    let models = await getJsonByProjectIds(projectIds)
     props.setProjectJSON(models)
     console.log(models)
   }
