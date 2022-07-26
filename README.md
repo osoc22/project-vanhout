@@ -16,25 +16,25 @@ along with several iterations of house designs fitting the parcels.
 
 To get a 2D view of what the house should look like you may visit following links:
 
-simplified 2D visualisation of all projects: 
+    - simplified 2D visualisation of all projects: 
     https://circl.be/nieuw/tool/model.php
 
-simplified 2D visualisation of specified project: 
+    - simplified 2D visualisation of specified project: 
     https://circl.be/nieuw/tool/model.php?project=1
 
 For the API calls you can use the following commands:
 
-json formatted data of all projects:
-    getJsonOfProjects()
-    gets all models from https://circl.be/nieuw/tool/model.php?json, this will take a few seconds to generate.
+    - json formatted data of all projects:
+      getJsonOfProjects()
+      gets all models from https://circl.be/nieuw/tool/model.php?json, this will take a few seconds to generate.
 
-json formatted data of specified project:
-    getJsonByProjectId(id)
-    gets the specified model from https://circl.be/nieuw/tool/model.php?project=id&json  where id is the specified project.
+    - json formatted data of specified project:
+      getJsonByProjectId(id)
+      gets the specified model from https://circl.be/nieuw/tool/model.php?project=id&json  where id is the specified project.
 
-json formatted data for multiple projects:
-    getJsonByProjectIds(ids)
-    gets specified models from https://circl.be/nieuw/tool/model.php?project=id1,id2,id3...&json where the ids specify the projects.
+    - json formatted data for multiple projects:
+      getJsonByProjectIds(ids)
+      gets specified models from https://circl.be/nieuw/tool/model.php?project=id1,id2,id3...&json where the ids specify the projects.
 
 The JSON exports contains an array with one or multiple building variants.
 Each variant contains info that can be used for 3D visualisations.
@@ -75,13 +75,16 @@ format:
 # three-react-fiber to load buildings
 
 
-The project makes use of three-react-fiber, a package that allows you to express three.js as JSX.
+The project makes use of three-react-fiber, a package that allows you to express Three.js as JSX.
 Most objects are <boxBufferGeometry> components with the position and depth data being pulled from
-the JSON file. There
+the JSON file. For example, we generate the walls, ground, and ceiling of a chosen house.  There are a few objects that we load as a gltf (gl Transmission Format). These objects are bathrooms, toilets ... It gives a better idea of how your house is laid out and where that which room may be. This is all generated in a canvas of react-three-fiber. 
+
+# React Autosuggest
+We installed the React autosuggest package in our project. This is a standard package that makes forms in React easier. For this project we then used react-autosuggest for the initial form where you can enter an address of a parcel you wish to buy. This package is specially designed to make form-handling in React easier.
 
 # Getting Started with Create React App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This project was bootstrapped with [Create React A pp](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
 
