@@ -158,8 +158,8 @@ function App() {
                   {/* <CameraButtons rotNum={45} setMoveUp={setMoveUp} moveUp={moveUp} /> */}
                   <Canvas  gl={{ preserveDrawingBuffer: true ,antialias:true}}>
                     {/* <CameraHelper rotationNum={180}/> */}
-                    {/* <Building projectId={projectId} sliderValue={sliderValue} setCenter={setCenter} setProjectJSON={setProjectJSON} projectJSON={projectJSON} setFloorCount={setFloorCount}/> */}
-                    <Buildings projectId={projectId} sliderValue={sliderValue} setCenter={setCenter} setProjectJSON={setProjectJSON} projectJSON={projectJSON} setFloorCount={setFloorCount}/>
+                    <Building projectId={projectId} sliderValue={sliderValue} setCenter={setCenter} setProjectJSON={setProjectJSON} projectJSON={projectJSON} setFloorCount={setFloorCount}/>
+                    {/* <Buildings projectId={projectId} sliderValue={sliderValue} setCenter={setCenter} setProjectJSON={setProjectJSON} projectJSON={projectJSON} setFloorCount={setFloorCount}/> */}
                     <Orbit moveUp={moveUp} setMoveUp={setMoveUp} position={center}/>
                     <GlobalRenderSetter setThreeCanvas={setThreeCanvas}/>
                   </Canvas>
