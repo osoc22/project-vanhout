@@ -3,8 +3,8 @@ import { BufferGeometry, BufferAttribute, DoubleSide,TextureLoader} from 'three'
 import { GLTFObject } from './GLTFModelLoader';
 
 let innerWallColor = "#AAAAAA";
-let wallColor = "#D18B68";
-let planeColor = '#E0E0F0';
+let wallColor = "#DBD5D0";
+let planeColor = '#7C827D';
 let floorThickness = 300;
 let GLTFObjects = {
     "bathroom":{"big":{"palleteRed":"/Models/Big_bathroom.gltf"},"small":{"palleteRed":"/Models/Small_bathroom.gltf"}},
@@ -368,7 +368,7 @@ export function loadFloors(corners, height,floorCount,drawRoof,extraDistance) {
     }
 
     let geometry = getGeometryFromNormalizedPoints(normalizedPoints);
-    return <mesh geometry={geometry} position={[extraDistance,0,0]}><meshBasicMaterial attach="material" side={DoubleSide} color={"#333333"}/></mesh>
+    return <mesh geometry={geometry} position={[extraDistance,0,0]}><meshBasicMaterial attach="material" side={DoubleSide} color={"#8F7868"}/></mesh>
 }
 
 export function LoadParcel(points) {
@@ -390,7 +390,8 @@ export function LoadParcel(points) {
         normalizedPoints.push(vectorizedPoints[nextCorner]);
     }
     let geometry = getGeometryFromNormalizedPoints(normalizedPoints);
-    return <mesh geometry={geometry}><meshBasicMaterial attach="material" side={DoubleSide} color={"#4F7B22"}/></mesh>;
+    // return <mesh geometry={geometry}><meshBasicMaterial attach="material" side={DoubleSide} color={"#4F7B22"}/></mesh>;
+    return <mesh geometry={geometry}><meshBasicMaterial attach="material" side={DoubleSide} color={"#81B85C"}/></mesh>;
 }
 
 
