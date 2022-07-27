@@ -16,23 +16,23 @@ along with several iterations of house designs fitting the parcels.
 
 To get a 2D view of what the house should look like you may visit following links:
 
-    - simplified 2D visualisation of all projects: 
+- simplified 2D visualisation of all projects: 
     https://circl.be/nieuw/tool/model.php
 
-    - simplified 2D visualisation of specified project: 
+- simplified 2D visualisation of specified project: 
     https://circl.be/nieuw/tool/model.php?project=1
 
 For the API calls you can use the following commands:
 
-    - json formatted data of all projects:
+- json formatted data of all projects:
       getJsonOfProjects()
       gets all models from https://circl.be/nieuw/tool/model.php?json, this will take a few seconds to generate.
 
-    - json formatted data of specified project:
+- json formatted data of specified project:
       getJsonByProjectId(id)
       gets the specified model from https://circl.be/nieuw/tool/model.php?project=id&json  where id is the specified project.
 
-    - json formatted data for multiple projects:
+- json formatted data for multiple projects:
       getJsonByProjectIds(ids)
       gets specified models from https://circl.be/nieuw/tool/model.php?project=id1,id2,id3...&json where the ids specify the projects.
 
@@ -82,10 +82,6 @@ the JSON file. For example, we generate the walls, ground, and ceiling of a chos
 # React Autosuggest
 We installed the React autosuggest package in our project. This is a standard package that makes forms in React easier. For this project we then used react-autosuggest for the initial form where you can enter an address of a parcel you wish to buy. This package is specially designed to make form-handling in React easier.
 
-# Getting Started with Create React App
-
-This project was bootstrapped with [Create React A pp](https://github.com/facebook/create-react-app).
-
 ## Available Scripts
 
 In the project directory, you can run:
@@ -112,43 +108,14 @@ The build is minified and the filenames include the hashes.\
 Your app is ready to be deployed!
 
 See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### `npm run deploy`
+If you are one the Master branch, running this command will build and deploy the project to the gh-pages branch. More specifically, it will put it in the /app folder of that branch. 
 
-### `npm run eject`
+More information on deploying React apps to GitHub pages can be found here: [https://www.freecodecamp.org/news/deploy-a-react-app-to-github-pages/](https://www.freecodecamp.org/news/deploy-a-react-app-to-github-pages/)
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
+## React
 
 You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
 To learn React, check out the [React documentation](https://reactjs.org/).
 
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
