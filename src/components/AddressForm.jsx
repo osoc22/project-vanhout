@@ -2,7 +2,6 @@ import {useEffect, useState} from 'react';
 import Autosuggest from 'react-autosuggest';
 
 // https://stackoverflow.com/a/34789405
-//const addresses = require('../data/splitted-addresses.json');
 const addresses = require('../data/splitted-addresses-incl-no-street-number.json');
 
 /* --- [code from: https://github.com/moroshko/react-autosuggest#basic-usage --- */
@@ -59,7 +58,6 @@ function AddressForm(props){
     let [streetNumber, setStreetNumber] = useState("");
     let [postalCode, setPostalCode] = useState("");
     let [city, setCity] = useState("");
-    // let [generalSuggestions, setGeneralSuggestions] = useState([{streetName: "", streetNumber: "", postalCode: "", city: ""}]);
     let [generalSuggestions, setGeneralSuggestions] = useState(addresses);
 
     let [streetNameSuggestions, setStreetNameSuggestions] = useState([{streetName:""}]);
@@ -86,7 +84,8 @@ function AddressForm(props){
         city: [showCitySuggestions, setShowCitySuggestions]
     }
     
-
+    // [ Every time generalSuggestions is updated, update the suggestions of the other fields.
+    // This ensures that, for example, when the user selected a streetName, the other fields don't show suggestions that don't exist in the database (i.e. the JSON addresses file).
     function updateAllSuggestions(){
         for (const [fieldName, [_, setFieldNameSuggestions]] of Object.entries(suggestions)){
             let uniqueSuggestions = [... new Set(generalSuggestions.map(x => x[fieldName]))];
@@ -99,8 +98,10 @@ function AddressForm(props){
     useEffect(() => {
         updateAllSuggestions()
     }, [generalSuggestions]);
+    // Every time generalSuggestions is updated, update the suggestions of the other fields. ]
 
 
+    // [ When the page is loaded initially, initialize all suggestions of all fields with unique values of generalSuggestions
     const initialiseSuggestions = (key) => {
         let [fieldSuggestions, setFieldSuggestions] = suggestions[key];
         // remove duplicates
@@ -111,21 +112,19 @@ function AddressForm(props){
         setFieldSuggestions(uniqueSuggestions);
     };
 
-    // on page load, initialise all suggestions of all fields with unique values of generalSuggestions
     useEffect(() => {
         for (const [fieldName, _] of Object.entries(suggestions)){
             initialiseSuggestions(fieldName)
         }
     },[]);
+    // When the page is loaded initially, initialize all suggestions of all fields with unique values of generalSuggestions ]
 
-
+    // When the submit button is clicked, set the projectId to the one that belongs to the address that was submitted.
    function handleSubmit(event){
         event.preventDefault();
         const projectId = generalSuggestions[0].projectID;
         setProjectId(projectId);
     }
-
-
 
     /* --- [code from: https://github.com/moroshko/react-autosuggest#basic-usage --- */
 
