@@ -1,8 +1,6 @@
 import {useFrame, useThree, extend} from '@react-three/fiber'
-import React, {useRef,useState} from 'react'
-import state from '../CamerState';
-import * as THREE from 'three';
-import { PerspectiveCamera } from 'three';
+import React, {useRef} from 'react'
+import {Vector2,Vector3} from 'three';
 import {OrbitControls} from'three/examples/jsm/controls/OrbitControls';
 import { useEffect } from 'react';
 
@@ -25,6 +23,7 @@ import { useEffect } from 'react';
 //         null
 //     )
 // }
+
 extend({OrbitControls});
 const Orbit = (props) => {
   const {camera, gl} = useThree();
@@ -35,9 +34,7 @@ const Orbit = (props) => {
   },[props.position]);
 
   let moveUp = props.moveUp;
-  let setMoveUp = props.setMoveUp;
-
-  
+  let setMoveUp = props.setMoveUp;  
 
   useFrame(()=>{
     if (moveUp){
@@ -47,11 +44,7 @@ const Orbit = (props) => {
     }
   },[moveUp]);
 
-
-
   const controls = useRef();
-
-
 
   useFrame((e) => controls.current.update());
 
@@ -68,19 +61,3 @@ const Orbit = (props) => {
   )
 }
 export {Orbit};
-
-
-const CameraControls = ({sizes}) => {
-var cameraCenter = new THREE.Vector3();
-var cameraHorzLimit = 50;
-var cameraVertLimit = 50;
-var mouse = new THREE.Vector2();
-
-    return(
-        null
-    )
-}
-
-
-
-export {CameraControls};

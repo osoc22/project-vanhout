@@ -1,50 +1,13 @@
-import React, { Component,useEffect, useState, useMemo,Suspense} from 'react';
-import { BufferGeometry, BufferAttribute, DoubleSide,TextureLoader} from 'three';
+import React, {Suspense} from 'react';
+import { BufferGeometry, BufferAttribute, DoubleSide} from 'three';
 import { GLTFObject } from './GLTFModelLoader';
 
-let innerWallColor = "#AAAAAA";
-let wallColor = "#DBD5D0";
-let planeColor = '#7C827D';
+let colors = {"inner_wall":"#AAAAAA","wall":"#DBD5D0","plane":"#7C827D","parcel":"#81B85C","floor":"#8F7868"}
 let floorThickness = 300;
-let GLTFObjects = {
-    "bathroom":{"big":{"palleteRed":"/Models/Big_bathroom.gltf"},"small":{"palleteRed":"/Models/Small_bathroom.gltf"}},
-    "toilet":{"big":{"palleteRed":"/Models/Big_WC.gltf"},"small":{"palleteRed":"/Models/Small_WC.gltf"}}
-}
+let GLTFObjects = {"bathroom":{"big":{"palleteRed":"/Models/Big_bathroom.gltf"},"small":{"palleteRed":"/Models/Small_bathroom.gltf"}},"toilet":{"big":{"palleteRed":"/Models/Big_WC.gltf"},"small":{"palleteRed":"/Models/Small_WC.gltf"}}}
 let selectedColor = "palleteRed";
 
-export async function getJsonFromUrl(url) {
-    return fetch(url)
-    .then((response) => response.json())
-    .then((responseJson) => {
-    return responseJson;
-    })
-    .catch((error) => {
-    console.error(error);
-    });   
-}
-
-export async function getJsonByProjectId(id) {
-    return await getJsonFromUrl(`https://circl.be/nieuw/tool/model.php?project=${id}&json`);
-}
-
-export async function getJsonOfProjects() {
-    return await getJsonFromUrl(`https://circl.be/nieuw/tool/model.php?&json`);
-}
-
-export async function getJsonByProjectIds(ids) {
-    let idString =""
-    for (let id of ids) {
-        idString += `${id},`
-    }
-
-    idString = idString.substring(1, idString.length-1);
-    return await getJsonFromUrl(`https://circl.be/nieuw/tool/model.php?project=${ids}&json`);
-}
-export async function getModels(projectId) {
-    const modelData = await getJsonByProjectId(projectId)
-    return modelData
-}
-
+// get interior object layouts
 export function getRandomLayout(modelData) {
     let randomModelId = Math.round(Math.random()*(modelData.length-1));
     return modelData[randomModelId]
@@ -54,17 +17,9 @@ export function getLatestLayout(modelData) {
     return modelData[modelData.length-1]
 }
 
-export function loadBuildingFromJson(modelData,floor =0) {
-    let objects = loadObjectsFromJson(modelData,floor)
-    objects.push(getInfinitePlane())
-    objects.push(LoadParcel(modelData.parcel));
-    return objects;
-}
-
-
+// loop through json, pull out houses
 export function loadBuildingsFromJson(modelData,floor =0) {
     if (!modelData.length) {return;}
-
     let objects = []
     let nextId = "?";
     let pos = 0;
@@ -83,19 +38,12 @@ export function loadBuildingsFromJson(modelData,floor =0) {
         pos += 1;
     }
 
-
-    // for (let buildingModelData of modelData){
-    //     const id = buildingModelData.id.split(".")[0]
-    //     if (currentLayout === id){continue;}
-    //     objects.push(...loadObjectsFromJson(buildingModelData,floor,i*20))
-    //     currentLayout = id
-    //     i++;
-    // }
     objects.push(getInfinitePlane())
     objects.push(LoadParcel(modelData[0].parcel));
     return objects;
 }
 
+// loop through building data, call object loaders
 export function loadObjectsFromJson(modelData, floor = 0,extraDistance=0) { 
     const floorCount = getFloorCount(modelData);
     let objects = [];
@@ -130,8 +78,7 @@ export function loadObjectsFromJson(modelData, floor = 0,extraDistance=0) {
     return objects;
 }
 
-// Note: write dynamically so any obj version can be positioned 
-
+// Loads either a GLTF object if available for the given object, otherwise a Cuboid.
 export function loadObj(obj,iter) {
     if (["building"].indexOf(obj.type) == -1) {
         if (obj.fill === 'none') {
@@ -139,23 +86,11 @@ export function loadObj(obj,iter) {
         }
         
         const {heightModifier,ZModifier} = setWallModifiers(obj);
-
         let gltf = loadAsGLTF(obj); 
         if (gltf) { return gltf}
 
         return Cuboid(`${iter}${obj.extraId}`,obj.type,[obj.width/1000,obj.height/1000+heightModifier/1000,obj.depth/1000],[-obj.posX/1000+obj.extraDistance,obj.posZ/1000+ZModifier/1000,obj.posY/1000],obj.fill,obj.theta)
     }
-}
-
-export function setWallModifiers(obj) {
-    if (obj.type == "wall") {
-        obj.fill = wallColor;
-        if (obj.properties["wall-type"].indexOf("inner") !== -1) {
-            obj.fill = innerWallColor;
-        }
-        return {"heightModifier":0,"ZModifier":0}
-    }
-    return {"heightModifier":-floorThickness,"ZModifier":10}
 }
 
 export function loadAsGLTF(obj){
@@ -180,6 +115,18 @@ export function loadAsGLTF(obj){
 
 }
 
+export function setWallModifiers(obj) {
+    if (obj.type == "wall") {
+        obj.fill = colors["wall"];
+        if (obj.properties["wall-type"].indexOf("inner") !== -1) {
+            obj.fill = colors["inner_wall"];
+        }
+        return {"heightModifier":0,"ZModifier":0}
+    }
+    return {"heightModifier":-floorThickness,"ZModifier":10}
+}
+
+// get the corner points of the current building.
 export function getCorners(modelData,floor) {
     let corners = [];
     let obj;
@@ -196,7 +143,8 @@ export function getCorners(modelData,floor) {
     }
     return corners;
 }
-// for camera function
+
+// gets the center point of the building
 export function getBuildingCenterFromJson(modelData, floor = 0) {
     let corners = getCorners(modelData,floor)
 
@@ -210,7 +158,7 @@ export function getBuildingCenterFromJson(modelData, floor = 0) {
     return center
 }
 
-// for pdf function
+// sets the camera to a corner of a building, facing the center
 export function setCameraInCorner(threeCanvas,modelData,cornerId,floor=0) {
     const corners = getCorners(getLatestLayout(modelData),floor)
     const cornersByFloor = divideFloors(corners);
@@ -225,17 +173,15 @@ export function setCameraInCorner(threeCanvas,modelData,cornerId,floor=0) {
     threeCanvas.renderer.render(threeCanvas.scene,threeCanvas.camera)
 }
 
-
+// creates a buffergeometry from the given points 
 export function getGeometryFromNormalizedPoints(normalizedPoints) {
     let positions = [];
-    let vertices = [];
 
     for (let i = 0; i< normalizedPoints.length;i++) {
         const polygon = normalizedPoints[i]
         positions.push(-polygon[0]/1000)
         positions.push(polygon[2]/1000)
         positions.push(polygon[1]/1000)
-        //.push([-polygon[0]/1000,polygon[2]/1000,polygon[1]/1000])
     }
 
     const geometry = new BufferGeometry();
@@ -250,6 +196,7 @@ export function addHeight(point,height) {
     return [point[0],point[1],point[2]+height]
 }
 
+// create a corner object from the 2D points
 export function loadCorner(points,height,extraDistance){
     let normalizedPoints = []
     
@@ -276,9 +223,10 @@ export function loadCorner(points,height,extraDistance){
     }
 
     let geometry = getGeometryFromNormalizedPoints(normalizedPoints)
-    return <mesh geometry={geometry} position={[extraDistance,0,0]}><meshBasicMaterial attach="material" color={wallColor} side={DoubleSide}/></mesh> 
+    return <mesh geometry={geometry} position={[extraDistance,0,0]}><meshBasicMaterial attach="material" color={colors["wall"]} side={DoubleSide}/></mesh> 
 }
 
+// divide corners into arrays of floors
 export function divideFloors(points) {
     let cornersByFloor = []
     let floorHeight = points[0][2];
@@ -306,6 +254,7 @@ export function getFloorCount(modelData) {
     return divideFloors(corners).length;
 }
 
+// get the highest floor count of multiple buildings
 export function getHighestFloorCount(modelData) {
     let highestfloorCount =0;
 
@@ -316,6 +265,7 @@ export function getHighestFloorCount(modelData) {
     return highestfloorCount
 }
 
+// get the index of the corner closest to the centerpoint of the current floor
 export function getCenterId(floor) {
     let totalX = 0;
     let totalY = 0;
@@ -341,6 +291,7 @@ export function getCenterId(floor) {
     return center
 }
 
+// load the floor for every level, add a roof if the max height is reached. Created from points.
 export function loadFloors(corners, height,floorCount,drawRoof,extraDistance) {
     let cornersByFloor = divideFloors(corners);
     let center;
@@ -382,13 +333,14 @@ export function loadFloors(corners, height,floorCount,drawRoof,extraDistance) {
     }
 
     let geometry = getGeometryFromNormalizedPoints(normalizedPoints);
-    return <mesh geometry={geometry} position={[extraDistance,0,0]}><meshBasicMaterial attach="material" side={DoubleSide} color={"#8F7868"}/></mesh>
+    return <mesh geometry={geometry} position={[extraDistance,0,0]}><meshBasicMaterial attach="material" side={DoubleSide} color={colors["floor"]}/></mesh>
 }
 
+// loads the parcel under the building(s). Created from points.
 export function LoadParcel(points) {
     let vectorizedPoints = []
     for (let point of points) {
-        vectorizedPoints.push([point[0],point[1],-3])
+        vectorizedPoints.push([point[0],point[1],-20])
     }
 
     let center = getCenterId(vectorizedPoints);
@@ -405,16 +357,15 @@ export function LoadParcel(points) {
     }
     let geometry = getGeometryFromNormalizedPoints(normalizedPoints);
     // return <mesh geometry={geometry}><meshBasicMaterial attach="material" side={DoubleSide} color={"#4F7B22"}/></mesh>;
-    return <mesh geometry={geometry}><meshBasicMaterial attach="material" side={DoubleSide} color={"#81B85C"}/></mesh>;
+    return <mesh geometry={geometry}><meshBasicMaterial attach="material" side={DoubleSide} color={colors["parcel"]}/></mesh>;
 }
 
-
+// loads a "plane" under the floor
 export function getInfinitePlane() {
-    return Cuboid(2,"plane",[10000,1,10000],[5000,-2,-5000],planeColor,0)
+    return Cuboid(2,"plane",[10000,1.6,10000],[5000,-2,-5000],colors["plane"],0)
 }
 
 // NOTE: This will create custom cuboid, not from a .obj file
-
 const Cuboid = (iter,type,shape,pos,fill,theta) => {
     return(
     <group key={`pivot${type}${iter}${fill}`} position={pos} rotation={[0,theta,0]}>

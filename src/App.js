@@ -1,16 +1,16 @@
 // import logo from './logo.svg';
 import './App.css';
 import './react-autosuggest.css';
-import React, { Component,useEffect, useState,Suspense, useRef} from 'react';
-import {Canvas, extend, useThree, useLoader, useFrame} from '@react-three/fiber';
-import { getLatestLayout,getModels,getBuildingCenterFromJson,getFloorCount, getHighestFloorCount, loadBuildingFromJson, loadBuildingsFromJson,getJsonByProjectIds} from './components/ObjectLoader';
+import React, {useEffect, useState} from 'react';
+import {Canvas, useThree} from '@react-three/fiber';
+import { getHighestFloorCount,loadBuildingsFromJson} from './components/ObjectLoader';
+import {fetchProject} from './components/FetchJSON';
 import AddressForm from './components/AddressForm';
 import{CameraControls, Orbit} from'./components/CameraControls';
-import CameraButtons  from './components/CameraButtons';
-import { Router, Routes, Route, HashRouter, Navigate} from "react-router-dom";
+// import CameraButtons  from './components/CameraButtons';
+import {Routes, Route, HashRouter, Navigate} from "react-router-dom";
 import Slider from'./components/Slider';
 import { createBrowserHistory } from "history";
-import { CreatePdf } from './components/PDFGen';
 
 const history = createBrowserHistory();
 
@@ -25,64 +25,12 @@ const GlobalRenderSetter = (props) => {
   props.setThreeCanvas({"renderer":gl,"scene":scene,"camera":camera});
 }
 
-const Building = (props) => {
-  const [projectMesh,setProjectMesh] = useState([])
-  const [projectId,_p] = useState(props.projectId);
-
-  const fetchModels = async function() {
-    let models = await getModels(projectId)
-    props.setProjectJSON(models)
-    console.log(models)
-  }
-
-  useEffect (() => {
-    fetchModels(projectId)
-  }, [projectId])
-
-  useEffect (() => {
-    if(props.projectJSON.length) {
-      let modelData = getLatestLayout(props.projectJSON);
-      let objects = loadBuildingFromJson(modelData, props.sliderValue)
-      setProjectMesh(objects)
-      props.setCenter(getBuildingCenterFromJson(modelData,props.sliderValue))
-      props.setFloorCount(getFloorCount(modelData))
-    }
-  }, [props.projectJSON])  
-
-  useEffect(()=> {
-    if(props.projectJSON.length) {
-      let modelData = getLatestLayout(props.projectJSON);
-      let objects = loadBuildingsFromJson(modelData, props.sliderValue)
-      setProjectMesh(objects)
-    }
-  },[props.sliderValue])
-
-  document.querySelector('.invisible').style.display = "block";
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     fetchProject()
-  //   }, 1000);
-  //   return () => clearInterval(interval);
-  // }, []);
-  return projectMesh
-}
-
 const Buildings = (props) => {
   const [projectMesh,setProjectMesh] = useState([])
   const [projectId,_p] = useState(props.projectId);
 
-  const fetchModels = async function() {
-    let projectIds = [projectId];
-    if (projectId === -1) {
-      projectIds = [39,58,31,7,29,34,32,43,38,55,19,56,59,35,8,13,14,15,41]
-    };
-    let models = await getJsonByProjectIds(projectIds)
-    props.setProjectJSON(models)
-    console.log(models)
-  }
-
   useEffect (() => {
-    fetchModels(projectId)
+    fetchProject(projectId,props.setProjectJSON)
   }, [projectId])
 
   useEffect (() => {
@@ -100,33 +48,34 @@ const Buildings = (props) => {
     }
   },[props.sliderValue])
 
-  document.querySelector('.invisible').style.display = "block";
   // useEffect(() => {
   //   const interval = setInterval(() => {
-  //     fetchProject()
+  //     fetchProject() // this is old code that won't work anymore, change this to alter which configuration to load
   //   }, 1000);
   //   return () => clearInterval(interval);
   // }, []);
   return projectMesh
 }
 
-const CameraHelper = (props) => {
- const {camera, gl} = useThree();
- const rotationNum = props.rotationNum
-  const x = (rotationNum * Math.PI) / 180
-  // useFrame(() => console.log(camera.position) )
+// shows camera visually
+// const CameraHelper = (props) => {
+//  const {camera, gl} = useThree();
+//  const rotationNum = props.rotationNum
+//   const x = (rotationNum * Math.PI) / 180
+//   // useFrame(() => console.log(camera.position) )
   
-  camera.rotation.set(x, 0, 0);
-  //console.log(camera.rotation);
-  // return <group position={props.position}>
-  //   <cameraHelper args={[camera]} />
+//   camera.rotation.set(x, 0, 0);
+//   //console.log(camera.rotation);
+//   // return <group position={props.position}>
+//   //   <cameraHelper args={[camera]} />
     
-  //   </group>
-    return <group>
-    <cameraHelper args={[camera]} />
+//   //   </group>
+//     return <group>
+//     <cameraHelper args={[camera]} />
     
-    </group>
-}
+//     </group>
+// }
+
 
 // test APP
 function App() {
@@ -138,18 +87,13 @@ function App() {
   let [floorCount,setFloorCount] = useState(1);
   let [projectJSON,setProjectJSON] = useState([]);
 
-  useEffect(()=>{
-    console.log("MOVE UP");
-  },[moveUp]);
+  // useEffect(()=>{
+  //   console.log("MOVE UP");
+  // },[moveUp]);
 
   const sliderToApp = (data) => {
     setSliderValue(parseInt(data));
   }
-
-  useEffect(() => {
-    console.log(center)
-  },[center])
-
 
   return (
     <HashRouter  location={history.location} history={history}>
@@ -160,23 +104,17 @@ function App() {
           <Route path={`/visualisation/:projectId`}
                 element={ <>
                   {/* <CameraButtons rotNum={45} setMoveUp={setMoveUp} moveUp={moveUp} /> */}
-                  <Canvas  gl={{ preserveDrawingBuffer: true ,antialias:true}}>
+                  <Canvas  gl={{ preserveDrawingBuffer: true ,antialias:true}} shadows >
                     {/* <CameraHelper rotationNum={180}/> */}
-                    {/* <Building projectId={projectId} sliderValue={sliderValue} setCenter={setCenter} setProjectJSON={setProjectJSON} projectJSON={projectJSON} setFloorCount={setFloorCount}/> */}
                     <Buildings projectId={projectId} sliderValue={sliderValue} setCenter={setCenter} setProjectJSON={setProjectJSON} projectJSON={projectJSON} setFloorCount={setFloorCount}/>
                     <Orbit moveUp={moveUp} setMoveUp={setMoveUp} position={center}/>
                     <GlobalRenderSetter setThreeCanvas={setThreeCanvas}/>
                   </Canvas>
+                  {/* <button onClick={() => CreatePdf(threeCanvas,projectJSON)}>??</button> */}
+                  <Slider sliderToApp={sliderToApp} floorCount={floorCount} sliderValue={sliderValue}/>
                   </>
                 } />
         </Routes>
-        {/* <button onClick={() => CreatePdf(threeCanvas,projectJSON)}>??</button> */}
-        <div className='slider_container invisible'>
-          <p className='slider_current'>Current floor: {sliderValue}</p>
-          <p>{floorCount+1}</p>
-          <Slider sliderToApp={sliderToApp} max={floorCount+1}/>
-          <p>1</p>
-        </div>
       </div>
     </HashRouter>
 )};
