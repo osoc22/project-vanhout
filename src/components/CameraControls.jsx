@@ -32,7 +32,6 @@ const Orbit = (props) => {
   useEffect(()=>{
     // console.log(props.position[0])
     camera.position.set(-props.position[0],props.position[1],props.position[2]);
-    console.log(camera.position)
   },[props.position]);
 
   let moveUp = props.moveUp;

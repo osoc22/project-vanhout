@@ -38,7 +38,6 @@ export async function getJsonByProjectIds(ids) {
     }
 
     idString = idString.substring(1, idString.length-1);
-    console.log(idString)
     return await getJsonFromUrl(`https://circl.be/nieuw/tool/model.php?project=${ids}&json`);
 }
 export async function getModels(projectId) {
@@ -67,7 +66,6 @@ export function loadBuildingsFromJson(modelData,floor =0) {
     if (!modelData.length) {return;}
 
     let objects = []
-    console.log(modelData)
     let nextId = "?";
     let pos = 0;
     for (let i=0; i<modelData.length;i++) {
@@ -418,7 +416,6 @@ export function getInfinitePlane() {
 // NOTE: This will create custom cuboid, not from a .obj file
 
 const Cuboid = (iter,type,shape,pos,fill,theta) => {
-    console.log(`object;${type},${pos},${theta}`)
     return(
     <group key={`pivot${type}${iter}${fill}`} position={pos} rotation={[0,theta,0]}>
         <mesh key={`mesh${type}${iter}${fill}`} position={[-shape[0]/2,shape[1]/2,shape[2]/2]}>
