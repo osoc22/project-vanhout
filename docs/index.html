@@ -23,6 +23,7 @@
     <link href="css/header.css" rel="stylesheet">
     <link href="css/project.css" rel="stylesheet">
     <link href="css/footer.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/flickity@2/dist/flickity.min.css">
 
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600,700|Open+Sans:300,400" rel="stylesheet">
@@ -148,7 +149,19 @@
           </div>
           <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-md-5 col-lg-6 col-md-offset-1">
             <div class="project-image">
-              <img src="img/bredestraat-lot16.png">
+              <!--<img src="img/bredestraat-lot16.png">-->
+              <div class="carousel"
+                data-flickity='{ "wrapAround": true, "autoPlay": 106000 }'>
+                <div class="carousel-cell">
+                  <video width="100%" controls>
+                    <source src="videos/finalDemo.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                  </video> 
+                </div>
+                <div class="carousel-cell">
+                  <img carousel-cell-image src="img/bredestraat-lot16.png">
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -211,5 +224,6 @@
         </div>
       </footer>
     </div>
+    <script src="https://unpkg.com/flickity@2/dist/flickity.pkgd.min.js"></script>
   </body>
 </html>
