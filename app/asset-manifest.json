@@ -1,25 +1,15 @@
 {
   "files": {
     "main.css": "/project-vanhout/app/static/css/main.adbd765d.css",
-    "main.js": "/project-vanhout/app/static/js/main.3c5226c5.js",
-    "static/js/498.682a107e.chunk.js": "/project-vanhout/app/static/js/498.682a107e.chunk.js",
-    "static/js/703.28ca931c.chunk.js": "/project-vanhout/app/static/js/703.28ca931c.chunk.js",
-    "static/js/513.95fb4134.chunk.js": "/project-vanhout/app/static/js/513.95fb4134.chunk.js",
+    "main.js": "/project-vanhout/app/static/js/main.e33cd9b8.js",
     "static/js/787.e7e5bcb2.chunk.js": "/project-vanhout/app/static/js/787.e7e5bcb2.chunk.js",
-    "static/media/arrow-left-square-fill.svg": "/project-vanhout/app/static/media/arrow-left-square-fill.8e9cdfd057122efbd6673b4caa6132eb.svg",
-    "static/media/arrow-up-square-fill.svg": "/project-vanhout/app/static/media/arrow-up-square-fill.75a9d1f72a4c355d3146147af755c37e.svg",
-    "static/media/arrow-down-square-fill.svg": "/project-vanhout/app/static/media/arrow-down-square-fill.1577ab47700250d9a03851dab16c36d2.svg",
-    "static/media/arrow-right-square-fill.svg": "/project-vanhout/app/static/media/arrow-right-square-fill.ead17239ccb577a763880d473b034fb0.svg",
     "index.html": "/project-vanhout/app/index.html",
     "main.adbd765d.css.map": "/project-vanhout/app/static/css/main.adbd765d.css.map",
-    "main.3c5226c5.js.map": "/project-vanhout/app/static/js/main.3c5226c5.js.map",
-    "498.682a107e.chunk.js.map": "/project-vanhout/app/static/js/498.682a107e.chunk.js.map",
-    "703.28ca931c.chunk.js.map": "/project-vanhout/app/static/js/703.28ca931c.chunk.js.map",
-    "513.95fb4134.chunk.js.map": "/project-vanhout/app/static/js/513.95fb4134.chunk.js.map",
+    "main.e33cd9b8.js.map": "/project-vanhout/app/static/js/main.e33cd9b8.js.map",
     "787.e7e5bcb2.chunk.js.map": "/project-vanhout/app/static/js/787.e7e5bcb2.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.adbd765d.css",
-    "static/js/main.3c5226c5.js"
+    "static/js/main.e33cd9b8.js"
   ]
 }
