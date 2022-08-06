@@ -95,6 +95,10 @@ function App() {
     setSliderValue(parseInt(data));
   }
 
+  useEffect(() => {
+    document.title = 'Team Sphere | Demo';
+  });
+
   return (
     <HashRouter  location={history.location} history={history}>
       <div className='App'>

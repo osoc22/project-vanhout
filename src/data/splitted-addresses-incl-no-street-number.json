@@ -37,7 +37,6 @@
  {"streetName": "Melkerijstraat", "streetNumber": "1", "postalCode": "8600", "city": "Diksmuide", "projectID": 37},
  {"streetName": "Zavelputstraat", "streetNumber": "6", "postalCode": "3600", "city": "Genk", "projectID": 40},
  {"streetName": "Zomerstraat", "streetNumber": "21", "postalCode": "9000", "city": "Gent", "projectID": 20},
- {"streetName": "Abrikoosstraat", "streetNumber": "8", "postalCode": "9000", "city": "Gent", "projectID": 57},
  {"streetName": "Govaertsstraat", "streetNumber": "10", "postalCode": "2222", "city": "Heist", "projectID": 48},
  {"streetName": "Kavel G", "streetNumber": "lot1", "postalCode": "3020", "city": "Herent", "projectID": 17},
  {"streetName": "Kavel G", "streetNumber": "lot2", "postalCode": "3020", "city": "Herent", "projectID": 23},
